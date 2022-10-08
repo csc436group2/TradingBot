@@ -1,0 +1,16 @@
+{
+    "secret_key" : "none",
+    "api_key" : "none",
+    "stock_sym" : "MSFT",
+    "buy_condition" : [
+        {"property":"RSI (14)",
+            "gt" : 0,
+            "lt" : 30}
+    ],
+    "sell_condition" : [
+        {"property":"RSI (14)",
+            "gt" : 70,
+            "lt" : 1000}
+    ]
+
+}
