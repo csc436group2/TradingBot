@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const { Box, Typography, TextField, Button } = require("@mui/material");
 
-const Login = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+function Login() {
+
+  const nav = useNavigate();
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const [keys, setKeys] = useState({
+    userName: "",
     apiKey: "",
     secretKey: "",
   });
@@ -15,13 +21,24 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(keys);
+    let verification = true;
+    if (keys.userName.length < 4) {
+      verification = false;
+    } 
+    if (keys.apiKey.length < 1) {
+      verification = false;
+    } 
+    if (keys.secretKey.length < 1) {
+      verification = false;
+    } 
+    if (verification) {
+      nav('/home');
+    } else {
+      setIsSubmitted(true);
+    }
+    return verification;
   };
 
-  const resetState = () => {
-    setIsSignUp(!isSignUp);
-    setKeys({apiKey:'', secretKey:''});
-  };
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -43,8 +60,17 @@ const Login = () => {
           }}
         >
           <Typography variant="h3" padding={3} textAlign="center">
-            {isSignUp ? "Create Account" : "Login"}
+            Sign In
           </Typography>
+          <TextField
+            name="userName"
+            value={keys.userName}
+            onChange={handleChange}
+            margin="normal"
+            type={"text"}
+            variant="outlined"
+            placeholder="Username"
+          ></TextField>
           <TextField
             name="apiKey"
             value={keys.apiKey}
@@ -64,19 +90,19 @@ const Login = () => {
             placeholder="Secret Key"
           ></TextField>
           <Button
-          type="submit"
+            type="submit"
             sx={{ marginTop: 3, borderRadius: 3 }}
             variant="contained"
             color="primary"
+            onClick={handleSubmit}
           >
-            {isSignUp ? "Sign Up" : "Login"}
+            Login
           </Button>
-          <Button
-            onClick={resetState}
-            sx={{ marginTop: 3, borderRadius: 3 }}
-          >
-            Change to {isSignUp ? "Login" : "Sign Up"}
-          </Button>
+          {isSubmitted === true && 
+            <Typography variant="h7" padding={3} textAlign="center" color={'red'}>
+              Incorrect fields were provided.
+            </Typography>
+          }
         </Box>
       </form>
     </div>
