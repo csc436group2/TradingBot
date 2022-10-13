@@ -1,28 +1,19 @@
-// import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Home from './components/home/home';
-import Login from './components/login/login';
+import Home from './views/home.view';
+import LoginView from './views/login.view';
+import './assets/css/fonts.css';
 
 function App() {
 
-  // const [data, setData] = useState([{}]);
-
   // useEffect(() => {
-  //   fetch("/users").then(
-  //     res => res.json()
-  //   ).then(
-  //     data => {
-  //       setData(data)
-  //       console.log(data)
-  //     }
-  //   )
+  //   document.body.style.overflow = "hidden";
   // }, []);
 
   return (
     <div className='App'>
         <Routes>
-          <Route path='/' element={<Login />} />
+          <Route path='/' element={<LoginView />} />
           <Route path='/home' element={<Home />} />
         </Routes>
     </div>
