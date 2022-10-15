@@ -47,7 +47,7 @@ class DBAdapter:
         self.cursor.execute("use ubt")
 
         userTable = "CREATE TABLE user( id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), apiKey VARCHAR(256), secretKey VARCHAR(50))"
-        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256))"
+        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256), buyConditions VARCHAR(256))"
         userBotTable = "CREATE TABLE userBot (id int PRIMARY KEY AUTO_INCREMENT, UserID int, BotID int, isActive BOOL )"
 
         self.cursor.execute(userTable)
@@ -89,15 +89,15 @@ class DBAdapter:
         else:
             return res
 
-    def addBot(self, name, stockSymbol, sellConditions):
+    def addBot(self, name, stockSymbol, sellConditions, buyConditions):
         """
         Adds a bot to the db
         name: the name of the bot
         """
         if self.isBotPresent(name) is not None:
             return
-        sql = "INSERT INTO bot (name, stockSymbol, sellConditions) VALUES (%s, %s, %s)"
-        val = (name, stockSymbol, sellConditions)
+        sql = "INSERT INTO bot (name, stockSymbol, sellConditions, buyConditions) VALUES (%s, %s, %s, %s)"
+        val = (name, stockSymbol, sellConditions, buyConditions)
         self.cursor.execute(sql, val)
     
     def addRelationship(self, userName, botName):
