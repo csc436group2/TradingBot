@@ -12,6 +12,7 @@ const Input = ({
   labelText,
   maxLength
 }) => {
+
   return (
     <Container>
       {variant === "normal" && (
@@ -36,7 +37,6 @@ const Input = ({
         <Stack>
           <Typography
             variant="subtitle1"
-            color={"black"}
             fontWeight="bold"
             marginBottom={-1}
             marginLeft={8}
@@ -60,7 +60,6 @@ const Input = ({
         <Stack>
           <Typography
             variant="subtitle1"
-            color={"black"}
             fontWeight="bold"
             marginBottom={-1}
             marginLeft={10}

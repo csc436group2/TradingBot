@@ -25,6 +25,12 @@ function LoginComponent() {
   };
 
   const handleSubmit = (e) => {
+    console.log("isLoggedIn: " + window.localStorage.getItem("isLoggedIn"));
+    console.log("userName: " + window.localStorage.getItem("userName"));
+    console.log("apiKey: " + window.localStorage.getItem("apiKey"));
+    console.log("secretKey: " + window.localStorage.getItem("secretKey"));
+    console.log("bots: " + window.localStorage.getItem("bots"));
+    
     e.preventDefault();
     let verification = true;
     if (userName.length < 4) {
@@ -37,7 +43,6 @@ function LoginComponent() {
       verification = false;
     }
     if (verification) {
-      console.log(requestOptions.body);
       records.forEach((user) => {
         if (
           user.userName === userName &&
@@ -58,6 +63,13 @@ function LoginComponent() {
             .catch((error) => {
               console.error("Error Code:", error);
             });
+          window.localStorage.setItem("isLoggedIn", true);
+          window.localStorage.setItem("userName", userName);
+          window.localStorage.setItem("apiKey", apiKey);
+          window.localStorage.setItem("secretKey", secretKey);
+          if (!window.localStorage.getItem("bots")) {
+            window.localStorage.setItem("bots", []);
+          }
           nav("/home", {
             state: user,
           });

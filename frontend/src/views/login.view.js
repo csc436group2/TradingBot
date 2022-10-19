@@ -2,37 +2,35 @@ import Image from "../assets/image/bg.png";
 import styled from "@emotion/styled";
 import LoginComponent from "../components/form/LoginSidebar";
 import RightSide from "../components/static/RightSide";
-import MyAppBar from "../components/static/AppBar";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function LoginView() {
-  const Container = styled.div`
-    background: #effcff;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  `;
+  const nav = useNavigate();
+  const isLoggedIn = window.localStorage.getItem("isLoggedIn");
 
-  const Wrapper = styled.div`
-    background-image: url(${Image});
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
-    display: flex;
-  `;
+  useEffect(() => {
+    if (isLoggedIn !== null || isLoggedIn) {
+      nav("/home");
+    }
+  });
 
   return (
-    <Container>
-      <MyAppBar isLogin={"true"}/>
       <Wrapper>
         <LoginComponent />
         <RightSide />
       </Wrapper>
-    </Container>
   );
 }
+
+const Wrapper = styled.div`
+  background-image: url(${Image});
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  display: flex;
+`;
 
 export default LoginView;
