@@ -44,15 +44,27 @@ function CreateBot() {
   const conditions = condRef.conditions;
 
   const [buyCnList, setBuyCnList] = useState([
-    { property: "Avg Volume", low: 0, high: 0 },
+    { property: "Avg Volume", lt: 0, gt: 0 },
   ]);
   const [sellCnList, setSellCnList] = useState([
-    { property: "Avg Volume", low: 0, high: 0 },
+    { property: "Avg Volume", lt: 0, gt: 0 },
   ]);
+
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      secretKey: window.localStorage.getItem("secretKey"),
+      apiKey: window.localStorage.getItem("apiKey"),
+      stockSym: stockSym,
+      buy_condition: buyCnList,
+      sell_condition: sellCnList,
+    }),
+  };
 
   // eslint-disable-next-line
   const handleBuyAddCondition = () => {
-    setBuyCnList([...buyCnList, { property: "", low: 0, high: 0 }]);
+    setBuyCnList([...buyCnList, { property: "", lt: 0, gt: 0 }]);
   };
 
   const handleBuyRemoveCondition = (index) => {
@@ -79,9 +91,9 @@ function CreateBot() {
     const { _name, value } = e.target;
     const list = [...buyCnList];
     if (isLow) {
-      list[index]["low"] = value;
+      list[index]["lt"] = value;
     } else {
-      list[index]["high"] = value;
+      list[index]["gt"] = value;
     }
     setBuyCnList(list);
   };
@@ -91,16 +103,16 @@ function CreateBot() {
     const { _name, value } = e.target;
     const list = [...sellCnList];
     if (isLow) {
-      list[index]["low"] = value;
+      list[index]["lt"] = value;
     } else {
-      list[index]["high"] = value;
+      list[index]["gt"] = value;
     }
     setSellCnList(list);
   };
 
   // eslint-disable-next-line
   const handleSellAddCondition = () => {
-    setSellCnList([...sellCnList, { property: "", low: 0, high: 0 }]);
+    setSellCnList([...sellCnList, { property: "", lt: 0, gt: 0 }]);
   };
 
   const handleSellRemoveCondition = (index) => {
@@ -133,7 +145,7 @@ function CreateBot() {
 
   const handleBotNameChange = (e) => {
     setBotName(e.target.value);
-    if (botName.length > 3) {
+    if (botName.length >= 3) {
       const list = stepCount;
       list["botName"] = true;
       incrementStep(list);
@@ -141,6 +153,7 @@ function CreateBot() {
   };
 
   const handleCreateBot = () => {
+    console.log(requestOptions.body);
     if (
       stepCount.symbol &&
       stepCount.buy & stepCount.sell &&
@@ -152,41 +165,28 @@ function CreateBot() {
       } else {
         bots = bots + "," + botName + "_" + stockSym;
       }
-      console.log(bots);
+      fetch("http://localhost:3000", requestOptions)
+        .then(async (response) => {
+          const isJson = response.headers
+            .get("content-type")
+            ?.includes("application/json");
+          const data = isJson && (await response.json());
+          if (!response.ok) {
+            const e = (data && data.message) || response.status;
+            return Promise.reject(e);
+          }
+        })
+        .catch((error) => {
+          console.error("Error Code:", error);
+        });
       localStorage.setItem("bots", bots);
       nav("/home");
     }
   };
 
   const handleCancel = () => {
-    nav('/home');
-  }
-
-  const FormWrapper = styled.div`
-    display: flex;
-    min-width: 1200px;
-    max-width: 1200px;
-    margin-bottom: 1rem;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    padding: 1rem;
-    background-color: ${colors.blueAccent[800]};
-    align-self: center;
-  `;
-
-  const DescWrapper = styled.div`
-    display: flex;
-    min-width: 1200px;
-    max-width: 1200px;
-    margin-bottom: 1rem;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    padding: 1rem;
-    background-color: ${colors.blueAccent[800]};
-    align-self: center;
-  `;
+    nav("/home");
+  };
 
   const MyButton = styled.div`
     button {
@@ -291,7 +291,7 @@ function CreateBot() {
         p={3}
         mr={3}
       >
-        <DescWrapper>
+        <DescWrapper style={{ backgroundColor: colors.blueAccent[800] }}>
           <Typography
             variant="h5"
             fontWeight="bold"
@@ -309,7 +309,9 @@ function CreateBot() {
               m={3}
             >
               <Box display="flex" flexDirection="row">
-                <Typography variant="h5" mr={0.6}>Bot Name</Typography>
+                <Typography variant="h5" mr={0.6}>
+                  Bot Name
+                </Typography>
                 <Tooltip
                   title="Display name for your robot in the dashboard."
                   arrow={true}
@@ -344,7 +346,7 @@ function CreateBot() {
             </Box>
           </Box>
         </DescWrapper>
-        <FormWrapper>
+        <FormWrapper style={{ backgroundColor: colors.blueAccent[800] }}>
           <Typography
             variant="h5"
             fontWeight="bold"
@@ -403,7 +405,7 @@ function CreateBot() {
                           sx={{ alignSelf: "start", marginLeft: 2 }}
                         >
                           <Input
-                            value={buyCnList[index]["low"]}
+                            value={buyCnList[index]["lt"]}
                             type="number"
                             onChange={(e) => {
                               handleBuyFieldChange(e, index, true);
@@ -412,7 +414,7 @@ function CreateBot() {
                             labelText={"LOW"}
                           />
                           <Input
-                            value={buyCnList[index]["high"]}
+                            value={buyCnList[index]["gt"]}
                             type="number"
                             onChange={(e) => {
                               handleBuyFieldChange(e, index, false);
@@ -555,7 +557,7 @@ function CreateBot() {
             *You must choose at least 1 buy condition to proceed.
           </p>
         </FormWrapper>
-        <FormWrapper>
+        <FormWrapper style={{ backgroundColor: colors.blueAccent[800] }}>
           <Typography
             variant="h5"
             fontWeight="bold"
@@ -607,7 +609,7 @@ function CreateBot() {
                       </Select>
                     </FormControl>
                     <Input
-                      value={sellCnList[index]["low"]}
+                      value={sellCnList[index]["lt"]}
                       type="number"
                       onChange={(e) => {
                         handleSellFieldChange(e, index, true);
@@ -616,7 +618,7 @@ function CreateBot() {
                       labelText={"LOW"}
                     />
                     <Input
-                      value={sellCnList[index]["high"]}
+                      value={sellCnList[index]["gt"]}
                       type="number"
                       onChange={(e) => {
                         handleSellFieldChange(e, index, false);
@@ -664,7 +666,7 @@ function CreateBot() {
             *You must choose at least 1 sell condition to proceed.
           </p>
         </FormWrapper>
-        <FormWrapper>
+        <FormWrapper style={{ backgroundColor: colors.blueAccent[800] }}>
           <Box display="flex" flexDirection="row">
             <MyButton>
               <button onClick={handleCreateBot}>CREATE MY BOT</button>
@@ -678,6 +680,30 @@ function CreateBot() {
     </Box>
   );
 }
+
+const DescWrapper = styled.div`
+  display: flex;
+  min-width: 1200px;
+  max-width: 1200px;
+  margin-bottom: 1rem;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  padding: 1rem;
+  align-self: center;
+`;
+
+const FormWrapper = styled.div`
+  display: flex;
+  min-width: 1200px;
+  max-width: 1200px;
+  margin-bottom: 1rem;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  padding: 1rem;
+  align-self: center;
+`;
 
 const StyledIcon = styled.div`
   button {
