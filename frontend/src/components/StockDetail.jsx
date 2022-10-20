@@ -28,6 +28,7 @@ function StockDetail({
   detailSecond,
   detailEPS,
   detailRatio,
+  stockSym
 }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -47,35 +48,45 @@ function StockDetail({
   };
 
   const handleDeleteRobot = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secretKey: window.localStorage.getItem('secretKey'),
+        apiKey: window.localStorage.getItem('apiKey'),
+        botName: botNameArr[index],
+        stock_sym: stockSym
+      }),
+    };
+    console.log(requestOptions.body);
+    fetch("http://localhost:5000/deletebot", requestOptions)
+    .then(async (response) => {
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson && (await response.json());
+      if (!response.ok) {
+        const e = (data && data.message) || response.status;
+        return Promise.reject(e);
+      }
+    })
+    .catch((error) => {
+      console.error("Error Code:", error);
+    });
     const list = window.localStorage.getItem("bots").split(",");
     const temp = list.slice(0, index);
-    const temp2 = list.slice(index + 1, list.length - 1);
-    const comb = [...temp] + [...temp2];
+    const temp2 = list.slice(index + 1, list.length);
+    let comb = "";
+    if (index === list.length - 1) {
+      comb = [...temp] + [...temp2];
+    } else {
+      comb = [...temp] + "," + [...temp2];
+    }
     window.localStorage.setItem("bots", comb);
     console.log(window.localStorage.getItem("bots"));
     closeDeleteDialog();
     handleDialogClose();
   };
-
-  const ViewButton = styled.div`
-    button {
-      max-width: 80px;
-      min-width: 80px;
-      height: 40px;
-      border: none;
-      font-size: 16px;
-      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-      border-radius: 20px;
-      background-color: ${colors.greenAccent[600]};
-      color: ${colors.primary};
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease-in;
-      &:hover {
-        transform: translateY(-3px);
-      }
-    }
-  `;
 
   const DeleteButton = styled.div`
     button {
@@ -87,6 +98,26 @@ function StockDetail({
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
       border-radius: 20px;
       background-color: ${colors.redAccent[600]};
+      color: ${colors.primary};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const PauseButton = styled.div`
+    button {
+      max-width: 80px;
+      min-width: 80px;
+      height: 40px;
+      border: none;
+      font-size: 16px;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background-color: ${colors.greenAccent[600]};
       color: ${colors.primary};
       font-weight: 600;
       cursor: pointer;
@@ -117,11 +148,31 @@ function StockDetail({
     }
   `;
 
+  const CloseButton = styled.div`
+  button {
+    max-width: 80px;
+    min-width: 80px;
+    height: 40px;
+    border: none;
+    font-size: 16px;
+    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    background-color: ${colors.grey[600]};
+    color: ${colors.primary};
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in;
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+`;
+
   return (
     <Dialog open={open} onClose={handleDialogClose} maxWidth="true">
       <DialogTitle>
         <Box p={1}>
-          <Header title={botNameArr[index]} subtitle="Bot Details" />
+          <Header title={botNameArr[index]} subtitle={stockSym} />
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -369,15 +420,18 @@ function StockDetail({
         </Dialog>
       </DialogContent>
       <DialogActions>
+        <PauseButton>
+          <button onClick={handleDialogClose}>PAUSE</button>
+        </PauseButton>
         <EditButton>
           <button onClick={handleDialogClose}>EDIT</button>
         </EditButton>
         <DeleteButton>
           <button onClick={openDeleteDialog}>DELETE</button>
         </DeleteButton>
-        <ViewButton>
+        <CloseButton>
           <button onClick={handleDialogClose}>CLOSE</button>
-        </ViewButton>
+        </CloseButton>
       </DialogActions>
     </Dialog>
   );

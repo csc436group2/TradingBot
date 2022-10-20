@@ -25,11 +25,6 @@ function LoginComponent() {
   };
 
   const handleSubmit = (e) => {
-    console.log("isLoggedIn: " + window.localStorage.getItem("isLoggedIn"));
-    console.log("userName: " + window.localStorage.getItem("userName"));
-    console.log("apiKey: " + window.localStorage.getItem("apiKey"));
-    console.log("secretKey: " + window.localStorage.getItem("secretKey"));
-    console.log("bots: " + window.localStorage.getItem("bots"));
     
     e.preventDefault();
     let verification = true;
@@ -49,7 +44,7 @@ function LoginComponent() {
           user.apiKey === apiKey &&
           user.secretKey === secretKey
         ) {
-          fetch("http://localhost:3000", requestOptions)
+          fetch("http://localhost:5000/login", requestOptions)
             .then(async (response) => {
               const isJson = response.headers
                 .get("content-type")

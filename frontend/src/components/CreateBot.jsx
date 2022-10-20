@@ -43,6 +43,10 @@ function CreateBot() {
   const condRef = new Conditions();
   const conditions = condRef.conditions;
 
+  const curDate = new Date();
+  const dateFormat = `${curDate.getDate()}/${curDate.getMonth()}/${curDate.getFullYear()};`
+  const timeFormat = ` ${curDate.toLocaleTimeString()}`;
+
   const [buyCnList, setBuyCnList] = useState([
     { property: "Avg Volume", lt: 0, gt: 0 },
   ]);
@@ -57,8 +61,10 @@ function CreateBot() {
       secretKey: window.localStorage.getItem("secretKey"),
       apiKey: window.localStorage.getItem("apiKey"),
       stockSym: stockSym,
+      botName: botName,
       buy_condition: buyCnList,
       sell_condition: sellCnList,
+      creation_date: dateFormat + timeFormat,
     }),
   };
 
@@ -165,7 +171,7 @@ function CreateBot() {
       } else {
         bots = bots + "," + botName + "_" + stockSym;
       }
-      fetch("http://localhost:3000", requestOptions)
+      fetch("http://localhost:5000/createbot", requestOptions)
         .then(async (response) => {
           const isJson = response.headers
             .get("content-type")

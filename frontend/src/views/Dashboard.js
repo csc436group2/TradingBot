@@ -1,9 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Box,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +30,8 @@ function Dashboard() {
   }
 
   const [open, setOpen] = useState(false);
+  const [detailIndex, setDetailIndex] = useState(null);
+  const [detailStockSym, setDetailStockSym] = useState(null);
 
   const dataRef = new BotDetail();
   const detailDesc = dataRef.detailsDescription;
@@ -46,7 +44,9 @@ function Dashboard() {
     nav("/createBot");
   };
 
-  const handleDialogOpen = () => {
+  const handleDialogOpen = (index) => {
+    setDetailIndex(index);
+    setDetailStockSym(botStockSymArr[index]);
     setOpen(true);
   };
 
@@ -169,20 +169,30 @@ function Dashboard() {
                       </Box>
                       <Box pr={4} pt={4}>
                         <ViewButton>
-                          <button onClick={handleDialogOpen}>View</button>
+                          <button
+                            id={index}
+                            onClick={() => {
+                              handleDialogOpen(index);
+                            }}
+                          >
+                            View
+                          </button>
                         </ViewButton>
                       </Box>
-                      <StockDetail
-                        index={index}
-                        open={open}
-                        setOpen={setOpen}
-                        botNameArr={botNameArr}
-                        detailDesc={detailDesc}
-                        detailFirst={detailFirst}
-                        detailSecond={detailSecond}
-                        detailEPS={detailEPS}
-                        detailRatio={detailRatio}
-                      />
+                      {open === true ? (
+                        <StockDetail
+                          index={detailIndex}
+                          open={open}
+                          setOpen={setOpen}
+                          botNameArr={botNameArr}
+                          detailDesc={detailDesc}
+                          detailFirst={detailFirst}
+                          detailSecond={detailSecond}
+                          detailEPS={detailEPS}
+                          detailRatio={detailRatio}
+                          stockSym={detailStockSym}
+                        />
+                      ) : null}
                     </Box>
                   </div>
                 );
