@@ -14,8 +14,8 @@ import {
   Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { tokens } from "../../theme";
-import Header from "../Header";
+import { tokens } from "../theme";
+import Header from "./Header";
 import { useState } from "react";
 
 function StockDetail({
@@ -47,12 +47,12 @@ function StockDetail({
   };
 
   const handleDeleteRobot = () => {
-    const list = window.localStorage.getItem('bots').split(',');
-    const temp = list.slice(0,index);
-    const temp2 = list.slice(index + 1,list.length - 1);
+    const list = window.localStorage.getItem("bots").split(",");
+    const temp = list.slice(0, index);
+    const temp2 = list.slice(index + 1, list.length - 1);
     const comb = [...temp] + [...temp2];
-    window.localStorage.setItem('bots', comb);
-    console.log(window.localStorage.getItem('bots'));
+    window.localStorage.setItem("bots", comb);
+    console.log(window.localStorage.getItem("bots"));
     closeDeleteDialog();
     handleDialogClose();
   };
@@ -79,14 +79,34 @@ function StockDetail({
 
   const DeleteButton = styled.div`
     button {
-      max-width: 140px;
-      min-width: 140px;
-      height: 60px;
+      max-width: 80px;
+      min-width: 80px;
+      height: 40px;
       border: none;
       font-size: 16px;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
       border-radius: 20px;
       background-color: ${colors.redAccent[600]};
+      color: ${colors.primary};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const EditButton = styled.div`
+    button {
+      max-width: 80px;
+      min-width: 80px;
+      height: 40px;
+      border: none;
+      font-size: 16px;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background-color: ${colors.blueAccent[600]};
       color: ${colors.primary};
       font-weight: 600;
       cursor: pointer;
@@ -319,11 +339,6 @@ function StockDetail({
           Sell Conditions
         </Typography>
         <Divider sx={{ marginBottom: 3 }} />
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <DeleteButton>
-            <button onClick={openDeleteDialog}>Delete Robot</button>
-          </DeleteButton>
-        </Box>
         <Dialog open={deleteOpen} onClose={closeDeleteDialog}>
           <DialogTitle fontWeight="bold" variant="h4">
             WARNING
@@ -354,6 +369,12 @@ function StockDetail({
         </Dialog>
       </DialogContent>
       <DialogActions>
+        <EditButton>
+          <button onClick={handleDialogClose}>EDIT</button>
+        </EditButton>
+        <DeleteButton>
+          <button onClick={openDeleteDialog}>DELETE</button>
+        </DeleteButton>
         <ViewButton>
           <button onClick={handleDialogClose}>CLOSE</button>
         </ViewButton>

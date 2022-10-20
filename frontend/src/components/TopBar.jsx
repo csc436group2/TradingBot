@@ -9,7 +9,7 @@ import {
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { useTheme } from "@mui/material";
 import { useContext, useState } from "react";
-import { ColorModeContext, tokens } from "../../theme";
+import { ColorModeContext, tokens } from "../theme";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";

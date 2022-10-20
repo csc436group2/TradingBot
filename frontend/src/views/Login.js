@@ -1,7 +1,7 @@
 import Image from "../assets/image/bg.png";
 import styled from "@emotion/styled";
-import LoginComponent from "../components/form/LoginSidebar";
-import RightSide from "../components/static/RightSide";
+import LoginComponent from "../components/LoginSidebar";
+import RightSide from "../components/RightSide";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 

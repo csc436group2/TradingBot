@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import records from "../../shared/mock/users.json";
+import records from "../shared/mock/users.json";
 import { Typography } from "@mui/material";
 import styled from "@emotion/styled";
-import Input from "../input/InputTextField";
+import Input from "./InputTextField";
 
 function LoginComponent() {
   const nav = useNavigate();

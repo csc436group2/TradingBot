@@ -16,13 +16,14 @@ import {
   useTheme,
 } from "@mui/material";
 import styled from "@emotion/styled";
-import Input from "../input/InputTextField";
+import Input from "./InputTextField";
 import { Stack } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Conditions from "../../shared/data/conditions";
-import { tokens } from "../../theme";
-import Header from "../Header";
+import Conditions from "../shared/data/conditions";
+import { tokens } from "../theme";
+import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import Info from "@mui/icons-material/Info";
 
 function CreateBot() {
   const [stockSym, setStockSym] = useState("");
@@ -145,17 +146,21 @@ function CreateBot() {
       stepCount.buy & stepCount.sell &&
       stepCount.botName
     ) {
-      let bots = window.localStorage.getItem('bots');
+      let bots = window.localStorage.getItem("bots");
       if (bots.length === 0) {
         bots = botName + "_" + stockSym;
       } else {
-        bots = bots  + "," + botName + "_" + stockSym;
+        bots = bots + "," + botName + "_" + stockSym;
       }
       console.log(bots);
       localStorage.setItem("bots", bots);
       nav("/home");
     }
   };
+
+  const handleCancel = () => {
+    nav('/home');
+  }
 
   const FormWrapper = styled.div`
     display: flex;
@@ -170,6 +175,110 @@ function CreateBot() {
     align-self: center;
   `;
 
+  const DescWrapper = styled.div`
+    display: flex;
+    min-width: 1200px;
+    max-width: 1200px;
+    margin-bottom: 1rem;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: ${colors.blueAccent[800]};
+    align-self: center;
+  `;
+
+  const MyButton = styled.div`
+    button {
+      max-width: 250px;
+      min-width: 250px;
+      height: 60px;
+      border: none;
+      margin: 1rem 0;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 198px;
+      background-color: ${colors.blueAccent[400]};
+      color: ${theme.palette.mode === "dark" ? "black" : "white"};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+        background-color: #00feb9;
+      }
+    }
+  `;
+
+  const CancelButton = styled.div`
+    button {
+      max-width: 180px;
+      min-width: 180px;
+      height: 60px;
+      border: none;
+      margin: 1rem 0;
+      margin-left: 1rem;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 198px;
+      background-color: ${colors.grey[400]};
+      color: ${theme.palette.mode === "dark" ? "black" : "white"};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+        background-color: #00feb9;
+      }
+    }
+  `;
+
+  const AddButton = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button {
+      min-width: 160px;
+      max-width: 160px;
+      height: 54px;
+      border: none;
+      margin: 1rem 0;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 198px;
+      background-color: ${colors.greenAccent[400]};
+      color: ${theme.palette.mode === "dark" ? "black" : "white"};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        background-color: ${colors.greenAccent[500]};
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const AddSellButton = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button {
+      min-width: 160px;
+      max-width: 160px;
+      height: 54px;
+      border: none;
+      margin: 1rem 0;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 198px;
+      background-color: ${colors.redAccent[400]};
+      color: ${theme.palette.mode === "dark" ? "black" : "white"};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        background-color: ${colors.redAccent[500]};
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
   return (
     <Box m="20px">
       <Header title="CREATE BOT" subtitle="Get started below." />
@@ -182,28 +291,59 @@ function CreateBot() {
         p={3}
         mr={3}
       >
-        <Box justifyContent="space-evenly" flexDirection="row" p={3} pl={10}>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="h5">Bot Name:</Typography>
-            <Input
-              value={botName}
-              onChange={handleBotNameChange}
-              variant={"normal"}
-              placeholder={"MyRobot"}
-              maxLength={25}
-            />
+        <DescWrapper>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            marginBottom={1}
+            alignSelf={"center"}
+            sx={{ fontFamily: "Monaco" }}
+          >
+            STOCK DESCRIPTION
+          </Typography>
+          <Box display="flex" flexDirection="row" p={3} pl={10}>
+            <Box
+              display="flex"
+              justifyContent="start"
+              flexDirection="column"
+              m={3}
+            >
+              <Box display="flex" flexDirection="row">
+                <Typography variant="h5" mr={0.6}>Bot Name</Typography>
+                <Tooltip
+                  title="Display name for your robot in the dashboard."
+                  arrow={true}
+                  placement="top"
+                  describeChild
+                >
+                  <Info fontSize="small" />
+                </Tooltip>
+              </Box>
+              <Input
+                value={botName}
+                onChange={handleBotNameChange}
+                variant={"normal"}
+                placeholder={"MyRobot"}
+                maxLength={25}
+              />
+            </Box>
+            <Box
+              display="flex"
+              justifyContent="start"
+              flexDirection="column"
+              m={3}
+            >
+              <Typography variant="h5">Stock Symbol:</Typography>
+              <Input
+                value={stockSym}
+                onChange={handleStockSymChange}
+                variant={"normal"}
+                placeholder={"MSFT"}
+                maxLength={4}
+              />
+            </Box>
           </Box>
-          <Box display="flex" flexDirection="column">
-            <Typography variant="h5">Stock Symbol:</Typography>
-            <Input
-              value={stockSym}
-              onChange={handleStockSymChange}
-              variant={"normal"}
-              placeholder={"MSFT"}
-              maxLength={4}
-            />
-          </Box>
-        </Box>
+        </DescWrapper>
         <FormWrapper>
           <Typography
             variant="h5"
@@ -404,7 +544,7 @@ function CreateBot() {
                 {buyCnList.length - 1 === index && buyCnList.length < 70 && (
                   <AddButton>
                     <button onClick={handleBuyAddCondition}>
-                      ADD BUY CONDITION
+                      ADD CONDITION
                     </button>
                   </AddButton>
                 )}
@@ -513,7 +653,7 @@ function CreateBot() {
                 {sellCnList.length - 1 === index && sellCnList.length < 70 && (
                   <AddSellButton>
                     <button onClick={handleSellAddCondition}>
-                      ADD SELL CONDITION
+                      ADD CONDITION
                     </button>
                   </AddSellButton>
                 )}
@@ -525,9 +665,14 @@ function CreateBot() {
           </p>
         </FormWrapper>
         <FormWrapper>
-          <MyButton>
-            <button onClick={handleCreateBot}>CREATE MY BOT</button>
-          </MyButton>
+          <Box display="flex" flexDirection="row">
+            <MyButton>
+              <button onClick={handleCreateBot}>CREATE MY BOT</button>
+            </MyButton>
+            <CancelButton>
+              <button onClick={handleCancel}>CANCEL</button>
+            </CancelButton>
+          </Box>
         </FormWrapper>
       </Box>
     </Box>
@@ -574,74 +719,6 @@ const SellConditionContainer = styled.div`
   margin-bottom: 1rem;
   justify-content: start;
   align-items: center;
-`;
-
-const MyButton = styled.div`
-  button {
-    width: 100%;
-    max-width: 350px;
-    min-width: 250px;
-    height: 60px;
-    border: none;
-    margin: 1rem 0;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 198px;
-    background-color: #70edb9;
-    color: black;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in;
-    &:hover {
-      transform: translateY(-3px);
-      background-color: #00feb9;
-    }
-  }
-`;
-
-const AddButton = styled.div`
-  button {
-    width: 32%;
-    max-width: 350px;
-    min-width: 60px;
-    height: 54px;
-    border: none;
-    margin: 1rem 0;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 198px;
-    background-color: rgba(100, 200, 183, 1);
-    color: black;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 17rem;
-    transition: all 0.2s ease-in;
-    &:hover {
-      background-color: rgba(100, 230, 183, 1);
-      transform: translateY(-3px);
-    }
-  }
-`;
-
-const AddSellButton = styled.div`
-  button {
-    width: 32%;
-    max-width: 350px;
-    min-width: 60px;
-    height: 54px;
-    border: none;
-    margin: 1rem 0;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 198px;
-    background-color: rgba(100, 200, 183, 1);
-    color: black;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 17rem;
-    transition: all 0.2s ease-in;
-    &:hover {
-      background-color: rgba(100, 230, 183, 1);
-      transform: translateY(-3px);
-    }
-  }
 `;
 
 export default CreateBot;

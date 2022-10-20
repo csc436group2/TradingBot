@@ -1,11 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import CreateBotView from "./views/createBot.view";
-import LoginView from "./views/login.view";
+import LoginView from "./views/Login";
 import "./assets/css/fonts.css";
-import DashboardView from "./views/dashboard.view";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import TopBar from "./components/global/TopBar";
+import TopBar from "./components/TopBar";
+import Dashboard from "./views/Dashboard";
+import CreateBot from "./components/CreateBot";
 
 function App() {
 
@@ -31,9 +31,9 @@ function App() {
               />
               <Route
                 path="/home"
-                element={<DashboardView />}
+                element={<Dashboard />}
               />
-              <Route path="/createbot" element={<CreateBotView />} />
+              <Route path="/createbot" element={<CreateBot/>} />
               <Route path="/login" element={<LoginView />} />
             </Routes>
           </main>

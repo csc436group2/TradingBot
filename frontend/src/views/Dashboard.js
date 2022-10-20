@@ -4,12 +4,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { tokens } from "../../theme";
-import Header from "../Header";
+import { tokens } from "../theme";
+import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import BotDetail from "../../models/botDetail";
-import StockDetail from "./StockDetail";
+import BotDetail from "../models/botDetail";
+import StockDetail from "../components/StockDetail";
 
 function Dashboard() {
   const theme = useTheme();
