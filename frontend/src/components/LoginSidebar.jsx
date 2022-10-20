@@ -63,7 +63,8 @@ function LoginComponent() {
           window.localStorage.setItem("apiKey", apiKey);
           window.localStorage.setItem("secretKey", secretKey);
           if (!window.localStorage.getItem("bots")) {
-            window.localStorage.setItem("bots", []);
+            const list = [];
+            window.localStorage.setItem("bots", JSON.stringify(list));
           }
           nav("/home", {
             state: user,

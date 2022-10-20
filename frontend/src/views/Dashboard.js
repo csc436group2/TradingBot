@@ -13,21 +13,22 @@ function Dashboard() {
 
   const nav = useNavigate();
 
-  let botNames = null;
-  let botNameArr = [];
-  let botStockSymArr = [];
-  if (window.localStorage.getItem("bots")) {
-    botNames = window.localStorage.getItem("bots");
-    const temp = botNames.split(",");
-    temp.map((val, index) => {
-      const split = val.split("_");
-      botNameArr[index] = split[0];
-      botStockSymArr[index] = split[1];
-      return "";
-    });
-  } else {
-    botNames = "";
-  }
+  // let botNames = null;
+  // let botNameArr = [];
+  // let botStockSymArr = [];
+  // if (window.localStorage.getItem("bots")) {
+  //   botNames = window.localStorage.getItem("bots");
+  //   const temp = botNames.split(",");
+  //   temp.map((val, index) => {
+  //     const split = val.split("_");
+  //     botNameArr[index] = split[0];
+  //     botStockSymArr[index] = split[1];
+  //     return "";
+  //   });
+  // } else {
+  //   botNames = "";
+  // }
+  const bots = JSON.parse(window.localStorage.getItem("bots"));
 
   const [open, setOpen] = useState(false);
   const [detailIndex, setDetailIndex] = useState(null);
@@ -46,7 +47,7 @@ function Dashboard() {
 
   const handleDialogOpen = (index) => {
     setDetailIndex(index);
-    setDetailStockSym(botStockSymArr[index]);
+    setDetailStockSym(bots[index]["stockSym"]);
     setOpen(true);
   };
 
@@ -107,7 +108,7 @@ function Dashboard() {
           mr={3}
           width={600}
         >
-          {botNames.length === 0 && (
+          {!bots && (
             <div>
               <Typography variant="h4" p={3}>
                 You don't appear to have a bot created with us yet. Let's get
@@ -120,9 +121,9 @@ function Dashboard() {
               </NewBot>
             </div>
           )}
-          {botNames.length > 0 && (
+          {bots != null && bots.length > 0 && (
             <div>
-              {botNameArr.map((name, index) => {
+              {bots.map((bot, index) => {
                 return (
                   <div key={index}>
                     <Box
@@ -143,7 +144,7 @@ function Dashboard() {
                         >
                           Name
                         </Typography>
-                        <Typography variant="h5">{name}</Typography>
+                        <Typography variant="h5">{bot["botName"]}</Typography>
                       </Box>
                       <Box p={3}>
                         <Typography
@@ -154,7 +155,7 @@ function Dashboard() {
                           Stock Symbol
                         </Typography>
                         <Typography variant="h5" textAlign="center">
-                          {botStockSymArr[index]}
+                          {bot["stockSym"]}
                         </Typography>
                       </Box>
                       <Box p={3} flexGrow={1}>
@@ -184,7 +185,6 @@ function Dashboard() {
                           index={detailIndex}
                           open={open}
                           setOpen={setOpen}
-                          botNameArr={botNameArr}
                           detailDesc={detailDesc}
                           detailFirst={detailFirst}
                           detailSecond={detailSecond}

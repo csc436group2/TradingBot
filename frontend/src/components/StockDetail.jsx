@@ -17,21 +17,22 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { tokens } from "../theme";
 import Header from "./Header";
 import { useState } from "react";
+import PlayCircleFilledWhiteRoundedIcon from '@mui/icons-material/PlayCircleFilledWhiteRounded';
 
 function StockDetail({
   index,
   open,
   setOpen,
-  botNameArr,
   detailDesc,
   detailFirst,
   detailSecond,
   detailEPS,
   detailRatio,
-  stockSym
 }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  let bots = JSON.parse(window.localStorage.getItem("bots"), "[]");
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -49,13 +50,13 @@ function StockDetail({
 
   const handleDeleteRobot = () => {
     const requestOptions = {
-      method: "POST",
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secretKey: window.localStorage.getItem('secretKey'),
         apiKey: window.localStorage.getItem('apiKey'),
-        botName: botNameArr[index],
-        stock_sym: stockSym
+        botName: bots[index]["botName"],
+        stock_sym: bots[index]["stockSym"]
       }),
     };
     console.log(requestOptions.body);
@@ -73,19 +74,42 @@ function StockDetail({
     .catch((error) => {
       console.error("Error Code:", error);
     });
-    const list = window.localStorage.getItem("bots").split(",");
-    const temp = list.slice(0, index);
-    const temp2 = list.slice(index + 1, list.length);
-    let comb = "";
-    if (index === list.length - 1) {
-      comb = [...temp] + [...temp2];
-    } else {
-      comb = [...temp] + "," + [...temp2];
-    }
-    window.localStorage.setItem("bots", comb);
-    console.log(window.localStorage.getItem("bots"));
+
+    const toDelete = bots[index];
+    bots = bots.filter(function(i) {
+      return i !== toDelete;
+    });
+    window.localStorage.setItem('bots', JSON.stringify(bots));
     closeDeleteDialog();
     handleDialogClose();
+  };
+
+  const handlePauseRobot = () => {
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secretKey: window.localStorage.getItem('secretKey'),
+        apiKey: window.localStorage.getItem('apiKey'),
+        botName: bots[index]["botName"],
+        stock_sym: bots[index]["stockSym"]
+      }),
+    };
+    console.log(requestOptions.body);
+    fetch("http://localhost:5000/pause", requestOptions)
+    .then(async (response) => {
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson && (await response.json());
+      if (!response.ok) {
+        const e = (data && data.message) || response.status;
+        return Promise.reject(e);
+      }
+    })
+    .catch((error) => {
+      console.error("Error Code:", error);
+    });
   };
 
   const DeleteButton = styled.div`
@@ -114,11 +138,13 @@ function StockDetail({
       min-width: 80px;
       height: 40px;
       border: none;
-      font-size: 16px;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-      border-radius: 20px;
+      border-radius: 200px;
       background-color: ${colors.greenAccent[600]};
       color: ${colors.primary};
+      align-items: center;
+      justify-content: center;
+      display: flex;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease-in;
@@ -172,7 +198,7 @@ function StockDetail({
     <Dialog open={open} onClose={handleDialogClose} maxWidth="true">
       <DialogTitle>
         <Box p={1}>
-          <Header title={botNameArr[index]} subtitle={stockSym} />
+          <Header title={bots[index]["botName"]} subtitle={bots[index]["stockSym"]} />
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -396,7 +422,7 @@ function StockDetail({
           </DialogTitle>
           <DialogContent>
             <Typography variant="h5">
-              Are you sure you want to delete robot '{botNameArr[index]}'?
+              Are you sure you want to delete robot '{bots[index]["botName"]}'?
             </Typography>
           </DialogContent>
           <DialogActions>
@@ -421,7 +447,7 @@ function StockDetail({
       </DialogContent>
       <DialogActions>
         <PauseButton>
-          <button onClick={handleDialogClose}>PAUSE</button>
+          <button onClick={handleDialogClose}><PlayCircleFilledWhiteRoundedIcon fontSize="large"/></button>
         </PauseButton>
         <EditButton>
           <button onClick={handleDialogClose}>EDIT</button>

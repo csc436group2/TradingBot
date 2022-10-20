@@ -24,6 +24,7 @@ import { tokens } from "../theme";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import Info from "@mui/icons-material/Info";
+import Bot from "../models/bot";
 
 function CreateBot() {
   const [stockSym, setStockSym] = useState("");
@@ -44,7 +45,7 @@ function CreateBot() {
   const conditions = condRef.conditions;
 
   const curDate = new Date();
-  const dateFormat = `${curDate.getDate()}/${curDate.getMonth()}/${curDate.getFullYear()};`
+  const dateFormat = `${curDate.getDate()}/${curDate.getMonth()}/${curDate.getFullYear()};`;
   const timeFormat = ` ${curDate.toLocaleTimeString()}`;
 
   const [buyCnList, setBuyCnList] = useState([
@@ -65,6 +66,7 @@ function CreateBot() {
       buy_condition: buyCnList,
       sell_condition: sellCnList,
       creation_date: dateFormat + timeFormat,
+      isRunning: false,
     }),
   };
 
@@ -159,33 +161,46 @@ function CreateBot() {
   };
 
   const handleCreateBot = () => {
-    console.log(requestOptions.body);
+    // console.log(requestOptions.body);
     if (
       stepCount.symbol &&
       stepCount.buy & stepCount.sell &&
       stepCount.botName
     ) {
+      // fetch("http://localhost:5000/createbot", requestOptions)
+      //   .then(async (response) => {
+      //     const isJson = response.headers
+      //       .get("content-type")
+      //       ?.includes("application/json");
+      //     const data = isJson && (await response.json());
+      //     if (!response.ok) {
+      //       const e = (data && data.message) || response.status;
+      //       return Promise.reject(e);
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error Code:", error);
+      //   });
+      const botModel = new Bot(
+        botName,
+        stockSym,
+        dateFormat + timeFormat,
+        false,
+        buyCnList,
+        sellCnList
+      );
       let bots = window.localStorage.getItem("bots");
-      if (bots.length === 0) {
-        bots = botName + "_" + stockSym;
+      if (bots === null) {
+        bots = [botModel];
+      } else if (bots.length === 0) {
+        bots = JSON.parse(localStorage.getItem('bots'), "[]");
+        bots = [botModel];
       } else {
-        bots = bots + "," + botName + "_" + stockSym;
+        bots = JSON.parse(window.localStorage.getItem("bots"), "[]");
+        bots.push(botModel);
       }
-      fetch("http://localhost:5000/createbot", requestOptions)
-        .then(async (response) => {
-          const isJson = response.headers
-            .get("content-type")
-            ?.includes("application/json");
-          const data = isJson && (await response.json());
-          if (!response.ok) {
-            const e = (data && data.message) || response.status;
-            return Promise.reject(e);
-          }
-        })
-        .catch((error) => {
-          console.error("Error Code:", error);
-        });
-      localStorage.setItem("bots", bots);
+      localStorage.setItem("bots", JSON.stringify(bots));
+      console.log(window.localStorage.getItem("bots"));
       nav("/home");
     }
   };
