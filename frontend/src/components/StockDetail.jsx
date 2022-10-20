@@ -59,7 +59,6 @@ function StockDetail({
         stock_sym: bots[index]["stockSym"]
       }),
     };
-    console.log(requestOptions.body);
     fetch("http://localhost:5000/deletebot", requestOptions)
     .then(async (response) => {
       const isJson = response.headers

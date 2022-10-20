@@ -3,7 +3,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 import BotDetail from "../models/botDetail";
 import StockDetail from "../components/StockDetail";
 
@@ -108,100 +108,106 @@ function Dashboard() {
           mr={3}
           width={600}
         >
-          {!bots && (
+          {!bots ? (
+            <NewBot>
+              <NoBotCreated nav={nav} />
+            </NewBot>
+          ) : (
             <div>
-              <Typography variant="h4" p={3}>
-                You don't appear to have a bot created with us yet. Let's get
-                you started.
-              </Typography>
-              <NewBot>
-                <button style={{ marginLeft: "35%" }} onClick={handleCreateBot}>
-                  Create New Bot
-                </button>
-              </NewBot>
-            </div>
-          )}
-          {bots != null && bots.length > 0 && (
-            <div>
-              {bots.map((bot, index) => {
-                return (
-                  <div key={index}>
-                    <Box
-                      bgcolor={colors.blueAccent[400]}
-                      p={1}
-                      m={3}
-                      boxShadow="0px 14px 9px -15px rgba(0, 0, 0, 0.25)"
-                      borderRadius={5}
-                      width={500}
-                      alignItems="start"
-                      display="flex"
+              {bots.length > 0 ? (
+                <div>
+                  {bots.map((bot, index) => {
+                    return (
+                      <div key={index}>
+                        <Box
+                          bgcolor={colors.blueAccent[400]}
+                          p={1}
+                          m={3}
+                          boxShadow="0px 14px 9px -15px rgba(0, 0, 0, 0.25)"
+                          borderRadius={5}
+                          width={500}
+                          alignItems="start"
+                          display="flex"
+                        >
+                          <Box p={3}>
+                            <Typography
+                              fontWeight={700}
+                              variant="h5"
+                              color={colors.grey[700]}
+                            >
+                              Name
+                            </Typography>
+                            <Typography variant="h5">
+                              {bot["botName"]}
+                            </Typography>
+                          </Box>
+                          <Box p={3}>
+                            <Typography
+                              fontWeight={700}
+                              variant="h5"
+                              color={colors.grey[700]}
+                            >
+                              Stock Symbol
+                            </Typography>
+                            <Typography variant="h5" textAlign="center">
+                              {bot["stockSym"]}
+                            </Typography>
+                          </Box>
+                          <Box p={3} flexGrow={1}>
+                            <Typography
+                              fontWeight={700}
+                              variant="h5"
+                              color={colors.grey[700]}
+                            >
+                              Order Date
+                            </Typography>
+                            <Typography variant="h5">
+                              {bot["creationDate"]}
+                            </Typography>
+                          </Box>
+                          <Box pr={4} pt={4}>
+                            <ViewButton>
+                              <button
+                                id={index}
+                                onClick={() => {
+                                  handleDialogOpen(index);
+                                }}
+                              >
+                                View
+                              </button>
+                            </ViewButton>
+                          </Box>
+                          {open === true ? (
+                            <StockDetail
+                              index={detailIndex}
+                              open={open}
+                              setOpen={setOpen}
+                              detailDesc={detailDesc}
+                              detailFirst={detailFirst}
+                              detailSecond={detailSecond}
+                              detailEPS={detailEPS}
+                              detailRatio={detailRatio}
+                              stockSym={detailStockSym}
+                            />
+                          ) : null}
+                        </Box>
+                      </div>
+                    );
+                  })}
+                  <NewBot>
+                    <button
+                      style={{ marginLeft: 170 }}
+                      onClick={handleCreateBot}
                     >
-                      <Box p={3}>
-                        <Typography
-                          fontWeight={700}
-                          variant="h5"
-                          color={colors.grey[700]}
-                        >
-                          Name
-                        </Typography>
-                        <Typography variant="h5">{bot["botName"]}</Typography>
-                      </Box>
-                      <Box p={3}>
-                        <Typography
-                          fontWeight={700}
-                          variant="h5"
-                          color={colors.grey[700]}
-                        >
-                          Stock Symbol
-                        </Typography>
-                        <Typography variant="h5" textAlign="center">
-                          {bot["stockSym"]}
-                        </Typography>
-                      </Box>
-                      <Box p={3} flexGrow={1}>
-                        <Typography
-                          fontWeight={700}
-                          variant="h5"
-                          color={colors.grey[700]}
-                        >
-                          Order Date
-                        </Typography>
-                        <Typography variant="h5">10/13/2022</Typography>
-                      </Box>
-                      <Box pr={4} pt={4}>
-                        <ViewButton>
-                          <button
-                            id={index}
-                            onClick={() => {
-                              handleDialogOpen(index);
-                            }}
-                          >
-                            View
-                          </button>
-                        </ViewButton>
-                      </Box>
-                      {open === true ? (
-                        <StockDetail
-                          index={detailIndex}
-                          open={open}
-                          setOpen={setOpen}
-                          detailDesc={detailDesc}
-                          detailFirst={detailFirst}
-                          detailSecond={detailSecond}
-                          detailEPS={detailEPS}
-                          detailRatio={detailRatio}
-                          stockSym={detailStockSym}
-                        />
-                      ) : null}
-                    </Box>
-                  </div>
-                );
-              })}
-              <NewBot>
-                <button style={{ marginLeft: 170 }} onClick={handleCreateBot}>
-                  Create New Bot
-                </button>
-              </NewBot>
+                      Create New Bot
+                    </button>
+                  </NewBot>
+                </div>
+              ) : (
+                <NewBot>
+                  <NoBotCreated nav={nav} />
+                </NewBot>
+              )}
             </div>
           )}
         </Box>
@@ -221,6 +227,26 @@ function Dashboard() {
       </Box>
     </Box>
   );
+}
+
+class NoBotCreated extends React.Component {
+  render() {
+    const nav = this.props.nav;
+    const handleCreateBot = () => {
+      nav("/createBot");
+    };
+    return (
+      <div>
+        <Typography variant="h4" p={3}>
+          You don't appear to have a bot created with us yet. Let's get you
+          started.
+        </Typography>
+        <button style={{ marginLeft: "34%" }} onClick={handleCreateBot}>
+          Create New Bot
+        </button>
+      </div>
+    );
+  }
 }
 
 export default Dashboard;
