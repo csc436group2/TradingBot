@@ -1,12 +1,23 @@
 import styled from "@emotion/styled";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
   Typography,
   useTheme,
 } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../Header";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import BotDetail from "../../models/botDetail";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 function Dashboard() {
   const theme = useTheme();
@@ -15,36 +26,82 @@ function Dashboard() {
   const nav = useNavigate();
 
   let botNames = null;
+  let botNameArr = [];
+  let botStockSymArr = [];
   if (window.localStorage.getItem("bots")) {
     botNames = window.localStorage.getItem("bots");
+    const temp = botNames.split(",");
+    temp.map((val, index) => {
+      const split = val.split("_");
+      botNameArr[index] = split[0];
+      botStockSymArr[index] = split[1];
+      return "";
+    });
   } else {
-    botNames = [];
+    botNames = "";
   }
+
+  const [open, setOpen] = useState(false);
+
+  const dataRef = new BotDetail();
+  const detailDesc = dataRef.detailsDescription;
+  const detailFirst = dataRef.detailsFirstHalf;
+  const detailSecond = dataRef.detailsSecondHalf;
+  const detailEPS = dataRef.detailsEPS;
+  const detailRatio = dataRef.detailsRatio;
 
   const handleCreateBot = () => {
-    nav('/createBot');
-  }
+    nav("/createBot");
+  };
+
+  const handleDialogOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
+  };
 
   const NewBot = styled.div`
-  button {
-    max-width: 240px;
-    min-width: 180px;
-    height: 40px;
-    border: none;
-    margin: 1rem 0;
-    font-size: 18px;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 20px;
-    background-color: ${colors.blueAccent[800]};
-    color: ${colors.primary[100]};
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in;
-    &:hover {
-      transform: translateY(-3px);
+    button {
+      max-width: 240px;
+      min-width: 180px;
+      height: 40px;
+      border: none;
+      margin: 1rem 0;
+      font-size: 18px;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background-color: ${colors.blueAccent[800]};
+      color: ${colors.primary[100]};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
     }
-  }
-`;
+  `;
+
+  const ViewButton = styled.div`
+    button {
+      max-width: 80px;
+      min-width: 80px;
+      height: 40px;
+      border: none;
+      font-size: 16px;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background-color: ${colors.greenAccent[600]};
+      color: ${colors.primary};
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
 
   return (
     <Box m="20px">
@@ -69,7 +126,322 @@ function Dashboard() {
                 you started.
               </Typography>
               <NewBot>
-                <button style={{ marginLeft: "35%" }} onClick={handleCreateBot}>Create New Bot</button>
+                <button style={{ marginLeft: "35%" }} onClick={handleCreateBot}>
+                  Create New Bot
+                </button>
+              </NewBot>
+            </div>
+          )}
+          {botNames.length > 0 && (
+            <div>
+              {botNameArr.map((name, index) => {
+                return (
+                  <div key={index}>
+                    <Box
+                      bgcolor={colors.blueAccent[400]}
+                      p={1}
+                      m={3}
+                      boxShadow="0px 14px 9px -15px rgba(0, 0, 0, 0.25)"
+                      borderRadius={5}
+                      width={500}
+                      alignItems="start"
+                      display="flex"
+                    >
+                      <Box p={3}>
+                        <Typography
+                          fontWeight={700}
+                          variant="h5"
+                          color={colors.grey[700]}
+                        >
+                          Name
+                        </Typography>
+                        <Typography variant="h5">{name}</Typography>
+                      </Box>
+                      <Box p={3}>
+                        <Typography
+                          fontWeight={700}
+                          variant="h5"
+                          color={colors.grey[700]}
+                        >
+                          Stock Symbol
+                        </Typography>
+                        <Typography variant="h5" textAlign="center">
+                          {botStockSymArr[index]}
+                        </Typography>
+                      </Box>
+                      <Box p={3} flexGrow={1}>
+                        <Typography
+                          fontWeight={700}
+                          variant="h5"
+                          color={colors.grey[700]}
+                        >
+                          Order Date
+                        </Typography>
+                        <Typography variant="h5">10/13/2022</Typography>
+                      </Box>
+                      <Box pr={4} pt={4}>
+                        <ViewButton>
+                          <button onClick={handleDialogOpen}>View</button>
+                        </ViewButton>
+                      </Box>
+                      <Dialog
+                        open={open}
+                        onClose={handleDialogClose}
+                        maxWidth="true"
+                      >
+                        <DialogTitle>
+                          <Box p={1}>
+                            <Header title={botNameArr[index]} subtitle="Bot Details" />
+                          </Box>
+                        </DialogTitle>
+                        <DialogContent>
+                          <Typography
+                            variant="h3"
+                            color={colors.grey[100]}
+                            fontWeight="bold"
+                            sx={{ m: "0 0 5px 0" }}
+                            p={1}
+                            textAlign="center"
+                          >
+                            Stock Details
+                          </Typography>
+                          <Divider sx={{ marginBottom: 3 }} />
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel2a-content"
+                              id="panel2a-header"
+                            >
+                              Stock Description
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Box
+                                width={1000}
+                                display="flex"
+                                flexDirection="row"
+                                justifyContent="start"
+                              >
+                                <Box
+                                  width={1000}
+                                  display="flex"
+                                  flexDirection="column"
+                                >
+                                  {detailDesc.map((_name, _index) => {
+                                    return (
+                                      <div key={_index} style={{ flexGrow: 1 }}>
+                                        <Box display="flex" flexDirection="row">
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            flexGrow={1}
+                                          >
+                                            {detailDesc[_index]["key"]}
+                                          </Typography>
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            fontWeight={700}
+                                            textAlign="end"
+                                          >
+                                            {detailDesc[_index]["val"]}
+                                          </Typography>
+                                        </Box>
+                                        <Divider sx={{ marginBottom: 1 }} />
+                                      </div>
+                                    );
+                                  })}
+                                </Box>
+                              </Box>
+                            </AccordionDetails>
+                          </Accordion>
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel3a-content"
+                              id="panel3a-header"
+                            >
+                              EPS & Return
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Box
+                                width={1000}
+                                display="flex"
+                                flexDirection="row"
+                                justifyContent="start"
+                              >
+                                <Box
+                                  width={1000}
+                                  display="flex"
+                                  flexDirection="column"
+                                >
+                                  {detailEPS.map((_name, _index) => {
+                                    return (
+                                      <div key={_index} style={{ flexGrow: 1 }}>
+                                        <Box display="flex" flexDirection="row">
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            flexGrow={1}
+                                          >
+                                            {detailEPS[_index]["key"]}
+                                          </Typography>
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            fontWeight={700}
+                                            textAlign="end"
+                                          >
+                                            {detailEPS[_index]["val"]}
+                                          </Typography>
+                                        </Box>
+                                        <Divider sx={{ marginBottom: 1 }} />
+                                      </div>
+                                    );
+                                  })}
+                                </Box>
+                              </Box>
+                            </AccordionDetails>
+                          </Accordion>
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel4a-content"
+                              id="panel4a-header"
+                            >
+                              Ratio
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Box
+                                width={1000}
+                                display="flex"
+                                flexDirection="row"
+                                justifyContent="start"
+                              >
+                                <Box
+                                  width={1000}
+                                  display="flex"
+                                  flexDirection="column"
+                                >
+                                  {detailRatio.map((_name, _index) => {
+                                    return (
+                                      <div key={_index} style={{ flexGrow: 1 }}>
+                                        <Box display="flex" flexDirection="row">
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            flexGrow={1}
+                                          >
+                                            {detailRatio[_index]["key"]}
+                                          </Typography>
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            fontWeight={700}
+                                            textAlign="end"
+                                          >
+                                            {detailRatio[_index]["val"]}
+                                          </Typography>
+                                        </Box>
+                                        <Divider sx={{ marginBottom: 1 }} />
+                                      </div>
+                                    );
+                                  })}
+                                </Box>
+                              </Box>
+                            </AccordionDetails>
+                          </Accordion>
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel5a-content"
+                              id="panel5a-header"
+                            >
+                              Advanced Details
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Box
+                                width={1000}
+                                height={800}
+                                display="flex"
+                                flexDirection="row"
+                                justifyContent="center"
+                              >
+                                <Box
+                                  width={360}
+                                  display="flex"
+                                  flexDirection="column"
+                                >
+                                  {detailFirst.map((_name, _index) => {
+                                    return (
+                                      <div key={_index} style={{ flexGrow: 1 }}>
+                                        <Box display="flex" flexDirection="row">
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            flexGrow={1}
+                                          >
+                                            {detailFirst[_index]["key"]}
+                                          </Typography>
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            fontWeight={700}
+                                            textAlign="end"
+                                          >
+                                            {detailFirst[_index]["val"]}
+                                          </Typography>
+                                        </Box>
+                                      </div>
+                                    );
+                                  })}
+                                </Box>
+                                <Box
+                                  width={360}
+                                  display="flex"
+                                  flexDirection="column"
+                                >
+                                  {detailSecond.map((_name, _index) => {
+                                    return (
+                                      <div key={_index} style={{ flexGrow: 1 }}>
+                                        <Box display="flex" flexDirection="row">
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            flexGrow={1}
+                                          >
+                                            {detailSecond[_index]["key"]}
+                                          </Typography>
+                                          <Typography
+                                            variant="h5"
+                                            p={1}
+                                            fontWeight={700}
+                                            textAlign="end"
+                                          >
+                                            {detailSecond[_index]["val"]}
+                                          </Typography>
+                                        </Box>
+                                      </div>
+                                    );
+                                  })}
+                                </Box>
+                              </Box>
+                            </AccordionDetails>
+                          </Accordion>
+                        </DialogContent>
+                        <DialogActions>
+                          <ViewButton>
+                            <button onClick={handleDialogClose}>CLOSE</button>
+                          </ViewButton>
+                        </DialogActions>
+                      </Dialog>
+                    </Box>
+                  </div>
+                );
+              })}
+              <NewBot>
+                <button style={{ marginLeft: 170 }} onClick={handleCreateBot}>
+                  Create New Bot
+                </button>
               </NewBot>
             </div>
           )}
@@ -81,312 +453,15 @@ function Dashboard() {
           justifyContent="center"
           p={3}
           width={600}
+          maxHeight={400}
         >
           <Typography variant="h2" p={3}>
             Portfolio
           </Typography>
         </Box>
       </Box>
-      {/*      <MyRobotsContainer>
-        <h4 style={{ marginTop: -36, marginBottom: 12 }}>MY ROBOTS</h4>
-        <Divider
-          sx={{
-            width: "107.2%",
-            marginLeft: -6,
-            marginBottom: 3,
-            backgroundColor: "#777777",
-            opacity: 0.3,
-          }}
-        />
-        <RobotContainer title="Tap to view more information.">
-          <BotNameBox>
-            <p>Asimo</p>
-          </BotNameBox>
-          <BotTextContainer>
-            <h6>STOCK SYMBOL</h6>
-            <p>AMZN</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>BUY botNames</h6>
-            <p>13</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>SELL botNames</h6>
-            <p>7</p>
-          </BotTextContainer>
-          <OrderDateBox>
-            <h6>ORDER DATE</h6>
-            <p>3 Sep 2022</p>
-            <p>8:32 PM</p>
-          </OrderDateBox>
-          <BotImg>
-            <img
-              src={genBotIcon(Math.random())}
-              width="60"
-              height="60"
-              alt="bottts_avatar"
-            />
-          </BotImg>
-        </RobotContainer>
-        <RobotContainer title="Tap to view more information.">
-          <BotNameBox>
-            <p>Lunar</p>
-          </BotNameBox>
-          <BotTextContainer>
-            <h6>STOCK SYMBOL</h6>
-            <p>AAPL</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>BUY botNames</h6>
-            <p>2</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>SELL botNames</h6>
-            <p>9</p>
-          </BotTextContainer>
-          <OrderDateBox>
-            <h6>ORDER DATE</h6>
-            <p>8 Oct 2022</p>
-            <p>2:04 PM</p>
-          </OrderDateBox>
-          <BotImg>
-            <img
-              src={genBotIcon(Math.random())}
-              width="60"
-              height="60"
-              alt="bottts_avatar"
-            />
-          </BotImg>
-        </RobotContainer>
-        <RobotContainer title="Tap to view more information.">
-          <BotNameBox>
-            <p>Solar</p>
-          </BotNameBox>
-          <BotTextContainer>
-            <h6>STOCK SYMBOL</h6>
-            <p>MSFT</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>BUY botNames</h6>
-            <p>4</p>
-          </BotTextContainer>
-          <BotTextContainer>
-            <h6>SELL botNames</h6>
-            <p>12</p>
-          </BotTextContainer>
-          <OrderDateBox>
-            <h6>ORDER DATE</h6>
-            <p>10 Oct 2022</p>
-            <p>3:16 PM</p>
-          </OrderDateBox>
-          <BotImg>
-            <img
-              src={genBotIcon(Math.random())}
-              width="60"
-              height="60"
-              alt="bottts_avatar"
-            />
-          </BotImg>
-        </RobotContainer>
-      </MyRobotsContainer>*/}
-      {/* <Wrapper>
-        <PortfolioContainer>
-          <h4 style={{ marginTop: -24, marginBottom: 4 }}>Portfolio</h4>
-          <Divider
-            sx={{ marginBottom: 3, backgroundColor: "black", opacity: 0.2 }}
-          />
-        </PortfolioContainer>
-      </Wrapper> */}
     </Box>
   );
 }
-
-const Wrapper = styled.div`
-  min-width: 1438px;
-  max-width: 1438px;
-  min-height: 800px;
-  max-height: 3200px;
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: start;
-  padding: 1rem;
-`;
-
-const PortfolioContainer = styled.div`
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background-color: rgba(17, 164, 173, 0.9);
-  height: 100%;
-  min-height: 400px;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  padding: 3rem;
-  color: black;
-  border-radius: 24px;
-  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.25);
-  transition: all 0.2s ease-in;
-  &:hover {
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.8);
-  }
-`;
-
-const MyRobotsContainer = styled.div`
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background-image: linear-gradient(to bottom, rgba(79, 227, 237, 1), #2f888e);
-  min-height: 400px;
-  max-height: 1200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  padding: 3rem;
-  border-radius: 24px;
-  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.25);
-  transition: all 0.2s ease-in;
-  color: black;
-  &:hover {
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.8);
-  }
-`;
-
-const RobotContainer = styled.div`
-  display: flex;
-  min-width: 60%;
-  max-width: 60%;
-  height: 20%;
-  min-height: 20%;
-  max-height: 100%;
-  justify-content: start;
-  align-items: start;
-  flex-direction: row;
-  background-image: linear-gradient(
-    to bottom,
-    rgba(79, 227, 237, 0.6),
-    #379ea5
-  );
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-  border-bottom-left-radius: 20px;
-  transition: all 0.2s ease-in;
-  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.25);
-  margin-bottom: 1rem;
-  &:hover {
-    background-color: rgba(79, 227, 237, 0.75);
-    border-top-right-radius: 52px;
-    border-bottom-right-radius: 52px;
-  }
-  h6 {
-    margin-top: -24px;
-  }
-
-  button {
-    width: 10%;
-    max-width: 120px;
-    min-width: 60px;
-    height: 60px;
-    border: none;
-    margin: 1rem 0;
-    margin-left: 1rem;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 198px;
-    background-color: #4fe3ed;
-    color: black;
-    font-weight: 900;
-    cursor: pointer;
-    padding: 23px;
-    font-size: 14px;
-    transition: all 0.2s ease-in;
-    &:hover {
-      transform: translateY(-3px);
-      background-color: #00feb9;
-    }
-  }
-`;
-
-const BotNameBox = styled.div`
-  padding: inherit;
-  height: 118px;
-  max-height: 100%;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  background-image: linear-gradient(to left, rgba(79, 227, 237, 0), #379ea5);
-  p {
-    writing-mode: vertical-rl;
-    text-transform: uppercase;
-    transform: scale(-1);
-    font-weight: 900;
-    padding-right: 2rem;
-    padding-bottom: 1.25rem;
-    color: black;
-    margin: auto;
-    margin-left: -1rem;
-  }
-`;
-
-const OrderDateBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  margin-left: 0.5rem;
-  padding: 12px;
-  p {
-    font-size: 16px;
-    font-weight: 900;
-    color: #555555;
-    margin: auto;
-  }
-
-  h6 {
-    font-size: 18px;
-    font-size: 2;
-    font-weight: 900;
-    color: black;
-    margin: auto;
-    margin-top: -1.5rem;
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const BotTextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  margin-left: 0.5rem;
-  padding: 12px;
-  p {
-    font-size: 16px;
-    font-weight: 900;
-    color: #555555;
-    margin: auto;
-  }
-
-  h6 {
-    font-size: 18px;
-    font-size: 2;
-    font-weight: 900;
-    color: black;
-    margin: auto;
-    margin-top: -1.5rem;
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const BotImg = styled.div`
-  display: flex;
-  width: 80px;
-  height: 80px;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-  background-color: rgba(79, 227, 237, 0.1);
-  border-radius: 80px;
-  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.25);
-`;
 
 export default Dashboard;

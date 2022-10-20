@@ -60,15 +60,12 @@ const TopBar = () => {
             <LightModeOutlinedIcon />
           )}
         </IconButton>
+        <IconButton onClick={handleMenu}>
+          <PersonOutlinedIcon />
+        </IconButton>
         {(window.location.pathname === "/home" ||
           window.location.pathname === "/createBot") && (
-          <IconButton onClick={handleMenu}>
-            <PersonOutlinedIcon />
-          </IconButton>
-        )}
-        {(window.location.pathname === "/home" ||
-          window.location.pathname === "/createBot") && (
-          <div>
+          <Box mt={1.3}>
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}
@@ -84,10 +81,10 @@ const TopBar = () => {
               }}
               open={Boolean(anchorEl)}
               onClose={handleClose}
+              color={colors.primary}
               PaperProps={{
                 style: {
                   width: "160px",
-                  backgroundColor: "rgba(94,123,130, 0.9)",
                 },
               }}
             >
@@ -96,26 +93,34 @@ const TopBar = () => {
                 textAlign={"center"}
                 style={{ fontWeight: 600 }}
                 fontSize={14}
-                color="white"
               >
                 User: @{window.localStorage.getItem("userName")}
               </Typography>
-              <Divider sx={{ backgroundColor: "white" }} />
+              <Divider />
               <Button
                 variant="text"
                 onClick={handleLogOut}
-                sx={{
-                  marginTop: 0,
-                  marginBottom: -0.9,
-                  fontSize: 14,
-                  color: "white",
-                }}
+                sx={
+                  theme.palette.mode === "light"
+                    ? {
+                        marginTop: 0,
+                        marginBottom: -0.9,
+                        fontSize: 14,
+                        color: "#555",
+                      }
+                    : {
+                        marginTop: 0,
+                        marginBottom: -0.9,
+                        fontSize: 14,
+                        color: "white",
+                      }
+                }
                 fullWidth
               >
                 Sign Out
               </Button>
             </Menu>
-          </div>
+          </Box>
         )}
       </Box>
     </Box>

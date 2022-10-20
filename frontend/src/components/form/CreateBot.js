@@ -31,6 +31,7 @@ function CreateBot() {
     symbol: false,
     buy: false,
     sell: false,
+    botName: false,
   });
 
   const theme = useTheme();
@@ -133,14 +134,25 @@ function CreateBot() {
     setBotName(e.target.value);
     if (botName.length > 3) {
       const list = stepCount;
-      list["bot"] = true;
+      list["botName"] = true;
       incrementStep(list);
     }
   };
 
   const handleCreateBot = () => {
-    if (stepCount.sell) {
-      localStorage.setItem("hasBot", true);
+    if (
+      stepCount.symbol &&
+      stepCount.buy & stepCount.sell &&
+      stepCount.botName
+    ) {
+      let bots = window.localStorage.getItem('bots');
+      if (bots.length === 0) {
+        bots = botName + "_" + stockSym;
+      } else {
+        bots = bots  + "," + botName + "_" + stockSym;
+      }
+      console.log(bots);
+      localStorage.setItem("bots", bots);
       nav("/home");
     }
   };
@@ -206,7 +218,7 @@ function CreateBot() {
             return (
               <div key={index}>
                 <BuyConditionContainer>
-                  <Stack direction={"row"} spacing={2}>
+                  <Stack direction={"row"} spacing={2} ml={7}>
                     <FormControl
                       variant="outlined"
                       fullWidth
@@ -417,7 +429,7 @@ function CreateBot() {
             return (
               <div key={index}>
                 <SellConditionContainer>
-                  <Stack direction={"row"} spacing={2}>
+                  <Stack direction={"row"} spacing={2} ml={7}>
                     <FormControl
                       variant="outlined"
                       fullWidth
