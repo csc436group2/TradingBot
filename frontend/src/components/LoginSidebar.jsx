@@ -24,7 +24,7 @@ function LoginComponent() {
         secretKey: secretKey,
       }),
     };
-    fetch("http://localhost:5000/login", requestOptions)
+    fetch("http://localhost:5000/api/login", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")

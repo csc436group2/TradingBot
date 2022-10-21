@@ -160,7 +160,7 @@ function CreateBot() {
         isRunning: true,
       }),
     };
-    fetch("http://localhost:5000/createbot", requestOptions)
+    fetch("http://localhost:5000/api/createbot", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")

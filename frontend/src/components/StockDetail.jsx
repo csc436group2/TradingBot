@@ -104,7 +104,7 @@ function StockDetail({
         sell_condition: bots[index]["sell_condition"],
       }),
     };
-    fetch("http://localhost:5000/edit", requestOptions)
+    fetch("http://localhost:5000/api/edit", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -158,7 +158,7 @@ function StockDetail({
         stock_sym: bots[index]["stockSym"],
       }),
     };
-    fetch("http://localhost:5000/deletebot", requestOptions)
+    fetch("http://localhost:5000/api/deletebot", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -185,7 +185,7 @@ function StockDetail({
         stock_sym: bots[index]["stockSym"],
       }),
     };
-    fetch("http://localhost:5000/pause", requestOptions)
+    fetch("http://localhost:5000/api/pause", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -606,8 +606,8 @@ function StockDetail({
         </Typography>
         <Box
           width={"100%"}
-          height={500}
-          bgcolor={colors.grey[900]}
+          minHeight={300}
+          bgcolor={colors.grey[800]}
           borderRadius={8}
           p={3}
           display="flex"
@@ -702,8 +702,8 @@ function StockDetail({
         </Typography>
         <Box
           width={"100%"}
-          height={500}
-          bgcolor={colors.grey[900]}
+          minHeight={300}
+          bgcolor={colors.grey[800]}
           borderRadius={8}
           p={3}
           display="flex"
