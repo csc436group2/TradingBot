@@ -45,8 +45,8 @@ function CreateBot() {
   const conditions = condRef.conditions;
 
   const curDate = new Date();
-  const dateFormat = `${curDate.getDate()}/${curDate.getMonth()}/${curDate.getFullYear()};`;
-  const timeFormat = ` ${curDate.toLocaleTimeString()}`;
+  const dateFormat = `${curDate.getMonth()}/${curDate.getDate()}/${curDate.getFullYear()}`;
+  // const timeFormat = ` ${curDate.toLocaleTimeString()}`;
 
   const [buyCnList, setBuyCnList] = useState([
     { property: "Avg Volume", lt: 0, gt: 0 },
@@ -54,21 +54,6 @@ function CreateBot() {
   const [sellCnList, setSellCnList] = useState([
     { property: "Avg Volume", lt: 0, gt: 0 },
   ]);
-
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      secretKey: window.localStorage.getItem("secretKey"),
-      apiKey: window.localStorage.getItem("apiKey"),
-      stockSym: stockSym,
-      botName: botName,
-      buy_condition: buyCnList,
-      sell_condition: sellCnList,
-      creation_date: dateFormat + timeFormat,
-      isRunning: false,
-    }),
-  };
 
   // eslint-disable-next-line
   const handleBuyAddCondition = () => {
@@ -160,31 +145,50 @@ function CreateBot() {
     }
   };
 
+  const createBotHttpRequest = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secretKey: window.localStorage.getItem("secretKey"),
+        apiKey: window.localStorage.getItem("apiKey"),
+        stockSym: stockSym,
+        botName: botName,
+        buy_condition: buyCnList,
+        sell_condition: sellCnList,
+        creation_date: dateFormat,
+        isRunning: false,
+      }),
+    };
+    fetch("http://localhost:5000/createbot", requestOptions)
+      .then(async (response) => {
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson && (await response.json());
+        if (!response.ok) {
+          const e = (data && data.message) || response.status;
+          return Promise.reject(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
+  };
+
   const handleCreateBot = () => {
-    // console.log(requestOptions.body);
     if (
       stepCount.symbol &&
       stepCount.buy & stepCount.sell &&
       stepCount.botName
     ) {
-      // fetch("http://localhost:5000/createbot", requestOptions)
-      //   .then(async (response) => {
-      //     const isJson = response.headers
-      //       .get("content-type")
-      //       ?.includes("application/json");
-      //     const data = isJson && (await response.json());
-      //     if (!response.ok) {
-      //       const e = (data && data.message) || response.status;
-      //       return Promise.reject(e);
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error Code:", error);
-      //   });
+      if (process.env.NODE_ENV !== "development") {
+        createBotHttpRequest();
+      }
       const botModel = new Bot(
         botName,
         stockSym,
-        dateFormat + timeFormat,
+        dateFormat,
         false,
         buyCnList,
         sellCnList
@@ -193,14 +197,14 @@ function CreateBot() {
       if (bots === null) {
         bots = [botModel];
       } else if (bots.length === 0) {
-        bots = JSON.parse(localStorage.getItem('bots'), "[]");
+        bots = JSON.parse(localStorage.getItem("bots"), "[]");
         bots = [botModel];
       } else {
         bots = JSON.parse(window.localStorage.getItem("bots"), "[]");
         bots.push(botModel);
       }
       localStorage.setItem("bots", JSON.stringify(bots));
-      console.log(window.localStorage.getItem("bots"));
+      console.log("bots: " + window.localStorage.getItem("bots"));
       nav("/home");
     }
   };

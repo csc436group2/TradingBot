@@ -14,18 +14,33 @@ function LoginComponent() {
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
 
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userName: userName,
-      apiKey: apiKey,
-      secretKey: secretKey,
-    }),
+  const loginHttpRequest = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userName: userName,
+        apiKey: apiKey,
+        secretKey: secretKey,
+      }),
+    };
+    fetch("http://localhost:5000/login", requestOptions)
+      .then(async (response) => {
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson && (await response.json());
+        if (!response.ok) {
+          const e = (data && data.message) || response.status;
+          return Promise.reject(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
   };
 
   const handleSubmit = (e) => {
-    
     e.preventDefault();
     let verification = true;
     if (userName.length < 4) {
@@ -44,20 +59,9 @@ function LoginComponent() {
           user.apiKey === apiKey &&
           user.secretKey === secretKey
         ) {
-          fetch("http://localhost:5000/login", requestOptions)
-            .then(async (response) => {
-              const isJson = response.headers
-                .get("content-type")
-                ?.includes("application/json");
-              const data = isJson && (await response.json());
-              if (!response.ok) {
-                const e = (data && data.message) || response.status;
-                return Promise.reject(e);
-              }
-            })
-            .catch((error) => {
-              console.error("Error Code:", error);
-            });
+          if (process.env.NODE_ENV !== "development") {
+            loginHttpRequest();
+          }
           window.localStorage.setItem("isLoggedIn", true);
           window.localStorage.setItem("userName", userName);
           window.localStorage.setItem("apiKey", apiKey);

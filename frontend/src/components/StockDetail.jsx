@@ -12,12 +12,15 @@ import {
   AccordionDetails,
   DialogActions,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { tokens } from "../theme";
 import Header from "./Header";
 import { useState } from "react";
-import PlayCircleFilledWhiteRoundedIcon from '@mui/icons-material/PlayCircleFilledWhiteRounded';
+import StartIcon from "@mui/icons-material/PlayCircleFilledWhiteRounded";
+import PauseIcon from "@mui/icons-material/PauseCircleFilledRounded";
 
 function StockDetail({
   index,
@@ -36,6 +39,22 @@ function StockDetail({
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const [curRunning, setCurRunning] = useState(bots[index]["isRunning"]);
+
+  const [snackBarOpen, setSnackBarOpen] = useState(false);
+
+  const handleSnackBarOpen = () => {
+    setSnackBarOpen(true);
+  };
+
+  const handleSnackBarClose = () => {
+    setSnackBarOpen(false);
+  };
+
+  const updateRunning = () => {
+    setCurRunning(!curRunning);
+  };
+
   const handleDialogClose = () => {
     setOpen(false);
   };
@@ -48,67 +67,92 @@ function StockDetail({
     setDeleteOpen(false);
   };
 
-  const handleDeleteRobot = () => {
+  const deleteHttpRequest = () => {
     const requestOptions = {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        secretKey: window.localStorage.getItem('secretKey'),
-        apiKey: window.localStorage.getItem('apiKey'),
+        secretKey: window.localStorage.getItem("secretKey"),
+        apiKey: window.localStorage.getItem("apiKey"),
         botName: bots[index]["botName"],
-        stock_sym: bots[index]["stockSym"]
+        stock_sym: bots[index]["stockSym"],
       }),
     };
     fetch("http://localhost:5000/deletebot", requestOptions)
-    .then(async (response) => {
-      const isJson = response.headers
-        .get("content-type")
-        ?.includes("application/json");
-      const data = isJson && (await response.json());
-      if (!response.ok) {
-        const e = (data && data.message) || response.status;
-        return Promise.reject(e);
-      }
-    })
-    .catch((error) => {
-      console.error("Error Code:", error);
-    });
+      .then(async (response) => {
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson && (await response.json());
+        if (!response.ok) {
+          const e = (data && data.message) || response.status;
+          return Promise.reject(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
+  };
 
+  const pauseHttpRequest = () => {
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secretKey: window.localStorage.getItem("secretKey"),
+        apiKey: window.localStorage.getItem("apiKey"),
+        botName: bots[index]["botName"],
+        stock_sym: bots[index]["stockSym"],
+      }),
+    };
+    fetch("http://localhost:5000/pause", requestOptions)
+      .then(async (response) => {
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson && (await response.json());
+        if (!response.ok) {
+          const e = (data && data.message) || response.status;
+          return Promise.reject(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
+  };
+
+  const handleDeleteRobot = () => {
+    if (process.env.NODE_ENV !== "development") {
+      deleteHttpRequest();
+    }
     const toDelete = bots[index];
-    bots = bots.filter(function(i) {
+    bots = bots.filter(function (i) {
       return i !== toDelete;
     });
-    window.localStorage.setItem('bots', JSON.stringify(bots));
+    window.localStorage.setItem("bots", JSON.stringify(bots));
     closeDeleteDialog();
     handleDialogClose();
   };
 
   const handlePauseRobot = () => {
-    const requestOptions = {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secretKey: window.localStorage.getItem('secretKey'),
-        apiKey: window.localStorage.getItem('apiKey'),
-        botName: bots[index]["botName"],
-        stock_sym: bots[index]["stockSym"]
-      }),
-    };
-    console.log(requestOptions.body);
-    fetch("http://localhost:5000/pause", requestOptions)
-    .then(async (response) => {
-      const isJson = response.headers
-        .get("content-type")
-        ?.includes("application/json");
-      const data = isJson && (await response.json());
-      if (!response.ok) {
-        const e = (data && data.message) || response.status;
-        return Promise.reject(e);
+    if (process.env.NODE_ENV !== "development") {
+      pauseHttpRequest();
+    }
+    const toUpdate = bots[index];
+    toUpdate["isRunning"] = true;
+    const updated = [];
+    bots.forEach(function (i) {
+      if (i["botName"] !== toUpdate["botName"]) {
+        updated.push(i);
+      } else {
+        updated.push(toUpdate);
       }
-    })
-    .catch((error) => {
-      console.error("Error Code:", error);
     });
+    window.localStorage.setItem("bots", JSON.stringify(updated));
+    updateRunning();
+    if (!curRunning) {
+      handleSnackBarOpen();
+    }
   };
 
   const DeleteButton = styled.div`
@@ -133,8 +177,8 @@ function StockDetail({
 
   const PauseButton = styled.div`
     button {
-      max-width: 80px;
-      min-width: 80px;
+      max-width: 120px;
+      min-width: 120px;
       height: 40px;
       border: none;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
@@ -174,33 +218,36 @@ function StockDetail({
   `;
 
   const CloseButton = styled.div`
-  button {
-    max-width: 80px;
-    min-width: 80px;
-    height: 40px;
-    border: none;
-    font-size: 16px;
-    box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-    border-radius: 20px;
-    background-color: ${colors.grey[600]};
-    color: ${colors.primary};
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in;
-    &:hover {
-      transform: translateY(-3px);
+    button {
+      max-width: 80px;
+      min-width: 80px;
+      height: 40px;
+      border: none;
+      font-size: 16px;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background-color: ${colors.grey[600]};
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
     }
-  }
-`;
+  `;
 
   return (
     <Dialog open={open} onClose={handleDialogClose} maxWidth="true">
-      <DialogTitle>
+      <DialogTitle sx={{ backgroundColor: colors.primary[400] }}>
         <Box p={1}>
-          <Header title={bots[index]["botName"]} subtitle={bots[index]["stockSym"]} />
+          <Header
+            title={bots[index]["botName"]}
+            subtitle={bots[index]["stockSym"]}
+          />
         </Box>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ backgroundColor: colors.primary[400] }}>
         <Typography
           variant="h3"
           color={colors.grey[100]}
@@ -403,7 +450,12 @@ function StockDetail({
         >
           Buy Conditions
         </Typography>
-        <Divider sx={{ marginBottom: 3 }} />
+        <Box
+          width={"100%"}
+          height={500}
+          bgcolor={colors.grey[900]}
+          borderRadius={8}
+        ></Box>
         <Typography
           variant="h3"
           color={colors.grey[100]}
@@ -414,7 +466,12 @@ function StockDetail({
         >
           Sell Conditions
         </Typography>
-        <Divider sx={{ marginBottom: 3 }} />
+        <Box
+          width={"100%"}
+          height={500}
+          bgcolor={colors.grey[900]}
+          borderRadius={8}
+        ></Box>
         <Dialog open={deleteOpen} onClose={closeDeleteDialog}>
           <DialogTitle fontWeight="bold" variant="h4">
             WARNING
@@ -444,20 +501,61 @@ function StockDetail({
           </DialogActions>
         </Dialog>
       </DialogContent>
-      <DialogActions>
-        <PauseButton>
-          <button onClick={handleDialogClose}><PlayCircleFilledWhiteRoundedIcon fontSize="large"/></button>
-        </PauseButton>
+      <DialogActions sx={{ backgroundColor: colors.primary[400] }}>
+        <Box ml={2}>
+          <PauseButton>
+            <button onClick={handlePauseRobot}>
+              {curRunning ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography fontSize={20} p={1} fontWeight="bold">
+                    PAUSE
+                  </Typography>
+                  <PauseIcon fontSize="large" />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography fontSize={20} p={1} fontWeight="bold">
+                    START
+                  </Typography>
+                  <StartIcon fontSize="large" />
+                </div>
+              )}
+            </button>
+          </PauseButton>
+        </Box>
         <EditButton>
           <button onClick={handleDialogClose}>EDIT</button>
         </EditButton>
-        <DeleteButton>
-          <button onClick={openDeleteDialog}>DELETE</button>
-        </DeleteButton>
+        <Box flexGrow={1}>
+          <DeleteButton>
+            <button onClick={openDeleteDialog}>DELETE</button>
+          </DeleteButton>
+        </Box>
         <CloseButton>
           <button onClick={handleDialogClose}>CLOSE</button>
         </CloseButton>
       </DialogActions>
+      <Snackbar
+        open={snackBarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackBarClose}
+      >
+        <Alert severity="info" icon={<StartIcon />}>
+          {bots[index]["botName"] + " is now running."}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }

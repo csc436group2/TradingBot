@@ -13,21 +13,6 @@ function Dashboard() {
 
   const nav = useNavigate();
 
-  // let botNames = null;
-  // let botNameArr = [];
-  // let botStockSymArr = [];
-  // if (window.localStorage.getItem("bots")) {
-  //   botNames = window.localStorage.getItem("bots");
-  //   const temp = botNames.split(",");
-  //   temp.map((val, index) => {
-  //     const split = val.split("_");
-  //     botNameArr[index] = split[0];
-  //     botStockSymArr[index] = split[1];
-  //     return "";
-  //   });
-  // } else {
-  //   botNames = "";
-  // }
   const bots = JSON.parse(window.localStorage.getItem("bots"));
 
   const [open, setOpen] = useState(false);
@@ -162,7 +147,7 @@ function Dashboard() {
                               Order Date
                             </Typography>
                             <Typography variant="h5">
-                              {bot["creationDate"]}
+                              {bot["creation_date"]}
                             </Typography>
                           </Box>
                           <Box pr={4} pt={4}>
