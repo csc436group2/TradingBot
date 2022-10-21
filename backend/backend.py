@@ -54,7 +54,7 @@ db.initNew()
 # def load_user(user_id):
     # DBAdapter.getUser(userId)
 
-@app.route( "/api/login", methods = ['POST'])
+@app.route( "/login", methods = ['POST'])
 def signUploging(): 
      #fetched name, key and secret
     incomingName = request.json["name"]
@@ -71,7 +71,7 @@ def signUploging():
     else:
         return make_response(jsonify("Wrong Info Provided."),406) #wrong info provided    
     
-@app.route("/api/create", methods = ['POST'])
+@app.route("/create", methods = ['POST'])
 def createBot():
     incomingKey = request.json["apiKey"]
     incomingSecret = request.json["secretKey"]
@@ -95,7 +95,7 @@ def createBot():
     else: 
         return make_response(jsonify("Wrong Info Provided"),406)
 
-@app.route( "/api/edit", methods = ['PUT'])
+@app.route( "/edit", methods = ['PUT'])
 def editBot():
     botName = request.json["botName"]
     retVal = db.isBotPresent(botName)
@@ -105,7 +105,7 @@ def editBot():
         #change bot 
         return make_response(jsonify("Success"), 200)
     
-@app.route( "/api/pause", methods = ['PUT'])
+@app.route( "/pause", methods = ['PUT'])
 def pause():
     botName = request.json("botName")
     user = request.json("name")
@@ -121,7 +121,7 @@ def pause():
             db.setInactive(user, botName)
         return make_response(jsonify("Success"), 200)
     
-@app.route( "/api/delete", methods = ['POST'])
+@app.route( "/delete", methods = ['POST'])
 def removeBot():
     botName = request.json("botName")
     retVal = db.isBotPresent(botName)
@@ -131,7 +131,7 @@ def removeBot():
         #do some thing with DB
         return make_response(jsonify("Success"), 200)
 
-@app.route( "/api/getbots", methods = ['GET'])
+@app.route( "/getbots", methods = ['GET'])
 def listBots():
     retList = db.getUserBots()
     if retList == None:
@@ -140,14 +140,14 @@ def listBots():
         return jsonify(retList)
         #parse retList to make list of bot names
         
-@app.route( "/api/detail", methods = ['GET'])
+@app.route( "/detail", methods = ['GET'])
 def finVizSymbolData():
     symbol = 'MSFT' #example should get specific symbol 
     retJson = finviz.get_stock(symbol)
     print(retJson) #should be json info
     return retJson
 
-@app.route( "/api/portfolio", methods = ['GET'])
+@app.route( "/portfolio", methods = ['GET'])
 def alpacaHistory():
     skey = "" #need to get key from DB
     apiKey = "" #need to get apiKey from DB
