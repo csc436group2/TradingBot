@@ -455,7 +455,53 @@ function StockDetail({
           height={500}
           bgcolor={colors.grey[900]}
           borderRadius={8}
-        ></Box>
+          p={3}
+          display="flex"
+          flexDirection="row"
+        >
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              CONDITION
+            </Typography>
+            {bots[index]["buy_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.property}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              LOW
+            </Typography>
+            {bots[index]["buy_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.lt}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              HIGH
+            </Typography>
+            {bots[index]["buy_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.gt}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+        </Box>
         <Typography
           variant="h3"
           color={colors.grey[100]}
@@ -471,7 +517,53 @@ function StockDetail({
           height={500}
           bgcolor={colors.grey[900]}
           borderRadius={8}
-        ></Box>
+          p={3}
+          display="flex"
+          flexDirection="row"
+        >
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              CONDITION
+            </Typography>
+            {bots[index]["sell_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.property}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              LOW
+            </Typography>
+            {bots[index]["sell_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.lt}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+          <Box p={3}>
+            <Typography fontWeight={700} variant="h5" mb={3}>
+              HIGH
+            </Typography>
+            {bots[index]["sell_condition"].map((item) => {
+              return (
+                <div key={item}>
+                  <Box mr={6} fontSize={16} mb={2}>
+                    {item.gt}
+                  </Box>
+                </div>
+              );
+            })}
+          </Box>
+        </Box>
         <Dialog open={deleteOpen} onClose={closeDeleteDialog}>
           <DialogTitle fontWeight="bold" variant="h4">
             WARNING

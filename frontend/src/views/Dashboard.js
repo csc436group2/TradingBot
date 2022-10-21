@@ -146,7 +146,7 @@ function Dashboard() {
                             >
                               Order Date
                             </Typography>
-                            <Typography variant="h5">
+                            <Typography variant="h5" textAlign="center">
                               {bot["creation_date"]}
                             </Typography>
                           </Box>
