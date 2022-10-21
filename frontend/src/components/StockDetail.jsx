@@ -431,7 +431,7 @@ function StockDetail({
               <Box width={1000} display="flex" flexDirection="column">
                 {detailDesc.map((_name, _index) => {
                   return (
-                    <div key={_index} style={{ flexGrow: 1 }}>
+                    <div key={_index + "-desc"} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailDesc[_index]["key"]}
@@ -471,7 +471,7 @@ function StockDetail({
               <Box width={1000} display="flex" flexDirection="column">
                 {detailEPS.map((_name, _index) => {
                   return (
-                    <div key={_index} style={{ flexGrow: 1 }}>
+                    <div key={_index + "-eps"} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailEPS[_index]["key"]}
@@ -511,7 +511,7 @@ function StockDetail({
               <Box width={1000} display="flex" flexDirection="column">
                 {detailRatio.map((_name, _index) => {
                   return (
-                    <div key={_index} style={{ flexGrow: 1 }}>
+                    <div key={_index + "-ratio"} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailRatio[_index]["key"]}
@@ -552,7 +552,7 @@ function StockDetail({
               <Box width={360} display="flex" flexDirection="column">
                 {detailFirst.map((_name, _index) => {
                   return (
-                    <div key={_index} style={{ flexGrow: 1 }}>
+                    <div key={_index + '-detail'} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailFirst[_index]["key"]}
@@ -573,7 +573,7 @@ function StockDetail({
               <Box width={360} display="flex" flexDirection="column">
                 {detailSecond.map((_name, _index) => {
                   return (
-                    <div key={_index} style={{ flexGrow: 1 }}>
+                    <div key={_index + '-second'} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailSecond[_index]["key"]}
@@ -619,7 +619,7 @@ function StockDetail({
             </Typography>
             {bots[index]["buy_condition"].map((item) => {
               return (
-                <div key={item.property}>
+                <div key={item.property + "-prop-1"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {item.property}
                   </Box>
@@ -633,7 +633,7 @@ function StockDetail({
             </Typography>
             {bots[index]["buy_condition"].map((item, _index) => {
               return (
-                <div key={item.lt}>
+                <div key={_index + "-" + item.lt + "-lt-1"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {isEdit ? (
                       <Input
@@ -664,7 +664,7 @@ function StockDetail({
             </Typography>
             {bots[index]["buy_condition"].map((item, _index) => {
               return (
-                <div key={item.gt}>
+                <div key={_index + "-" + item.gt + "-gt-1"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {isEdit ? (
                       <Input
@@ -715,7 +715,7 @@ function StockDetail({
             </Typography>
             {bots[index]["sell_condition"].map((item) => {
               return (
-                <div key={item.property}>
+                <div key={item.property + "-prop-2"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {item.property}
                   </Box>
@@ -729,7 +729,7 @@ function StockDetail({
             </Typography>
             {bots[index]["sell_condition"].map((item, _index) => {
               return (
-                <div key={item.lt}>
+                <div key={_index + "-" + item.lt + "-lt-2"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {isEdit ? (
                       <Input
@@ -760,7 +760,7 @@ function StockDetail({
             </Typography>
             {bots[index]["sell_condition"].map((item, _index) => {
               return (
-                <div key={item.gt}>
+                <div key={_index + "-" + item.gt + "-gt-2"}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {isEdit ? (
                       <Input

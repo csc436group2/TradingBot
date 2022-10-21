@@ -157,7 +157,7 @@ function CreateBot() {
         buy_condition: buyCnList,
         sell_condition: sellCnList,
         creation_date: dateFormat,
-        isRunning: false,
+        isRunning: true,
       }),
     };
     fetch("http://localhost:5000/createbot", requestOptions)
