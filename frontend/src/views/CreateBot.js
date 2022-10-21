@@ -16,12 +16,12 @@ import {
   useTheme,
 } from "@mui/material";
 import styled from "@emotion/styled";
-import Input from "./InputTextField";
+import Input from "../components/InputTextField";
 import { Stack } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Conditions from "../shared/data/conditions";
 import { tokens } from "../theme";
-import Header from "./Header";
+import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import Info from "@mui/icons-material/Info";
 import Bot from "../models/bot";

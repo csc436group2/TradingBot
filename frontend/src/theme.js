@@ -59,6 +59,17 @@ export const tokens = (mode) => ({
           800: "#2a2d64",
           900: "#151632",
         },
+        yellowAccent: {
+          100: "#fff5cc",
+          200: "#fff0b3",
+          300: "#ffeb99",
+          400: "#ffe680",
+          500: "#ffe066",
+          600: "#ffdb4d",
+          700: "#ffd633",
+          800: "#ffd11a",
+          900: "#ffcc00",
+        },
       }
     : {
         grey: {
@@ -115,6 +126,17 @@ export const tokens = (mode) => ({
           700: "#a4a9fc",
           800: "#c3c6fd",
           900: "#e1e2fe",
+        },
+        yellowAccent: {
+          100: "#fff5cc",
+          200: "#fff0b3",
+          300: "#ffeb99",
+          400: "#ffe680",
+          500: "#ffe066",
+          600: "#ffdb4d",
+          700: "#ffd633",
+          800: "#ffd11a",
+          900: "#ffcc00",
         },
       }),
 });

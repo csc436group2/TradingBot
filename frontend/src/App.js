@@ -5,7 +5,7 @@ import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import TopBar from "./components/TopBar";
 import Dashboard from "./views/Dashboard";
-import CreateBot from "./components/CreateBot";
+import CreateBot from "./views/CreateBot";
 
 function App() {
 

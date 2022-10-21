@@ -14,13 +14,19 @@ import {
   Button,
   Snackbar,
   Alert,
+  Input,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { tokens } from "../theme";
 import Header from "./Header";
 import { useState } from "react";
-import StartIcon from "@mui/icons-material/PlayCircleFilledWhiteRounded";
-import PauseIcon from "@mui/icons-material/PauseCircleFilledRounded";
+import StartIcon from "@mui/icons-material/PlayCircleOutlineRounded";
+import PauseIcon from "@mui/icons-material/PauseCircleOutlineRounded";
+import ConfirmIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import CancelIcon from "@mui/icons-material/BlockRounded";
+import EditIcon from "@mui/icons-material/TuneRounded";
+import DeleteIcon from "@mui/icons-material/DeleteOutlineRounded";
+import CloseIcon from "@mui/icons-material/CloseRounded";
 
 function StockDetail({
   index,
@@ -42,6 +48,16 @@ function StockDetail({
   const [curRunning, setCurRunning] = useState(bots[index]["isRunning"]);
 
   const [snackBarOpen, setSnackBarOpen] = useState(false);
+
+  const [isEdit, setIsEdit] = useState(false);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [botsEdit, setBotsEdit] = useState(bots);
+
+  const toggleEdit = () => {
+    setIsEdit(!isEdit);
+  };
 
   const handleSnackBarOpen = () => {
     setSnackBarOpen(true);
@@ -67,9 +83,73 @@ function StockDetail({
     setDeleteOpen(false);
   };
 
+  const openConfirmDialog = () => {
+    setConfirmOpen(true);
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmOpen(false);
+  };
+
+  const editHttpRequest = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secretKey: window.localStorage.getItem("secretKey"),
+        apiKey: window.localStorage.getItem("apiKey"),
+        botName: bots[index]["botName"],
+        stock_sym: bots[index]["stockSym"],
+        buy_condition: bots[index]["buy_condition"],
+        sell_condition: bots[index]["sell_condition"],
+      }),
+    };
+    fetch("http://localhost:5000/edit", requestOptions)
+      .then(async (response) => {
+        const isJson = response.headers
+          .get("content-type")
+          ?.includes("application/json");
+        const data = isJson && (await response.json());
+        if (!response.ok) {
+          const e = (data && data.message) || response.status;
+          return Promise.reject(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
+  };
+
+  const handleConfirmChanges = () => {
+    if (process.env.NODE_ENV !== "development") {
+      editHttpRequest();
+    }
+    toggleEdit();
+    window.localStorage.setItem("bots", JSON.stringify(botsEdit));
+    closeConfirmDialog();
+  };
+
+  const handleInputChange = (e, bot_i, cn_i, cn, val) => {
+    const curr = botsEdit[bot_i];
+    let target_val = e.target.value;
+    if (target_val === "") {
+      target_val = 0;
+    }
+    curr[cn][cn_i][val] = target_val;
+    const list = [...botsEdit];
+    list.filter(function (i) {
+      if (i === curr) {
+        return curr;
+      } else {
+        return i;
+      }
+    });
+    setBotsEdit(list);
+  };
+
   const deleteHttpRequest = () => {
     const requestOptions = {
-      method: "DELETE",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secretKey: window.localStorage.getItem("secretKey"),
@@ -96,7 +176,7 @@ function StockDetail({
 
   const pauseHttpRequest = () => {
     const requestOptions = {
-      method: "PUT",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secretKey: window.localStorage.getItem("secretKey"),
@@ -157,15 +237,17 @@ function StockDetail({
 
   const DeleteButton = styled.div`
     button {
-      max-width: 80px;
-      min-width: 80px;
+      max-width: 120px;
+      min-width: 120px;
       height: 40px;
       border: none;
-      font-size: 16px;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-      border-radius: 20px;
+      border-radius: 200px;
       background-color: ${colors.redAccent[600]};
-      color: ${colors.primary};
+      color: white;
+      align-items: center;
+      justify-content: center;
+      display: flex;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease-in;
@@ -183,8 +265,30 @@ function StockDetail({
       border: none;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
       border-radius: 200px;
-      background-color: ${colors.greenAccent[600]};
+      background-color: ${colors.yellowAccent[600]};
       color: ${colors.primary};
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const StartButton = styled.div`
+    button {
+      max-width: 120px;
+      min-width: 120px;
+      height: 40px;
+      border: none;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 200px;
+      background-color: ${colors.greenAccent[600]};
+      color: white;
       align-items: center;
       justify-content: center;
       display: flex;
@@ -199,15 +303,17 @@ function StockDetail({
 
   const EditButton = styled.div`
     button {
-      max-width: 80px;
-      min-width: 80px;
+      max-width: 100px;
+      min-width: 100px;
       height: 40px;
       border: none;
-      font-size: 16px;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-      border-radius: 20px;
+      border-radius: 200px;
       background-color: ${colors.blueAccent[600]};
-      color: ${colors.primary};
+      color: white;
+      align-items: center;
+      justify-content: center;
+      display: flex;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease-in;
@@ -217,19 +323,67 @@ function StockDetail({
     }
   `;
 
-  const CloseButton = styled.div`
+  const CancelButton = styled.div`
     button {
-      max-width: 80px;
-      min-width: 80px;
+      max-width: 120px;
+      min-width: 120px;
       height: 40px;
       border: none;
-      font-size: 16px;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
-      border-radius: 20px;
-      background-color: ${colors.grey[600]};
+      border-radius: 200px;
+      background-color: ${colors.blueAccent[600]};
       color: white;
+      align-items: center;
+      justify-content: center;
+      display: flex;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const ConfirmButton = styled.div`
+    button {
+      max-width: 140px;
+      min-width: 140px;
+      height: 40px;
+      border: none;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 200px;
+      background-color: ${colors.greenAccent[600]};
+      color: white;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: all 0.2s ease-in;
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  `;
+
+  const CloseButton = styled.div`
+    button {
+      max-width: 120px;
+      min-width: 120px;
+      height: 40px;
+      border: none;
+      box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
+      border-radius: 200px;
+      background-color: ${colors.blueAccent[600]};
+      color: white;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
       transition: all 0.2s ease-in;
       &:hover {
         transform: translateY(-3px);
@@ -465,7 +619,7 @@ function StockDetail({
             </Typography>
             {bots[index]["buy_condition"].map((item) => {
               return (
-                <div key={item}>
+                <div key={item.property}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {item.property}
                   </Box>
@@ -477,11 +631,28 @@ function StockDetail({
             <Typography fontWeight={700} variant="h5" mb={3}>
               LOW
             </Typography>
-            {bots[index]["buy_condition"].map((item) => {
+            {bots[index]["buy_condition"].map((item, _index) => {
               return (
-                <div key={item}>
+                <div key={item.lt}>
                   <Box mr={6} fontSize={16} mb={2}>
-                    {item.lt}
+                    {isEdit ? (
+                      <Input
+                        type="number"
+                        placeholder={item.lt.toString()}
+                        value={botsEdit[index]["buy_condition"][_index].lt}
+                        onChange={(e) => {
+                          handleInputChange(
+                            e,
+                            index,
+                            _index,
+                            "buy_condition",
+                            "lt"
+                          );
+                        }}
+                      ></Input>
+                    ) : (
+                      item.lt
+                    )}
                   </Box>
                 </div>
               );
@@ -491,11 +662,28 @@ function StockDetail({
             <Typography fontWeight={700} variant="h5" mb={3}>
               HIGH
             </Typography>
-            {bots[index]["buy_condition"].map((item) => {
+            {bots[index]["buy_condition"].map((item, _index) => {
               return (
-                <div key={item}>
+                <div key={item.gt}>
                   <Box mr={6} fontSize={16} mb={2}>
-                    {item.gt}
+                    {isEdit ? (
+                      <Input
+                        type="number"
+                        placeholder={item.gt.toString()}
+                        value={botsEdit[index]["buy_condition"][_index].gt}
+                        onChange={(e) => {
+                          handleInputChange(
+                            e,
+                            index,
+                            _index,
+                            "buy_condition",
+                            "gt"
+                          );
+                        }}
+                      ></Input>
+                    ) : (
+                      item.gt
+                    )}
                   </Box>
                 </div>
               );
@@ -527,7 +715,7 @@ function StockDetail({
             </Typography>
             {bots[index]["sell_condition"].map((item) => {
               return (
-                <div key={item}>
+                <div key={item.property}>
                   <Box mr={6} fontSize={16} mb={2}>
                     {item.property}
                   </Box>
@@ -539,11 +727,28 @@ function StockDetail({
             <Typography fontWeight={700} variant="h5" mb={3}>
               LOW
             </Typography>
-            {bots[index]["sell_condition"].map((item) => {
+            {bots[index]["sell_condition"].map((item, _index) => {
               return (
-                <div key={item}>
+                <div key={item.lt}>
                   <Box mr={6} fontSize={16} mb={2}>
-                    {item.lt}
+                    {isEdit ? (
+                      <Input
+                        type="number"
+                        placeholder={item.lt.toString()}
+                        value={botsEdit[index]["sell_condition"][_index].lt}
+                        onChange={(e) => {
+                          handleInputChange(
+                            e,
+                            index,
+                            _index,
+                            "sell_condition",
+                            "lt"
+                          );
+                        }}
+                      ></Input>
+                    ) : (
+                      item.lt
+                    )}
                   </Box>
                 </div>
               );
@@ -553,11 +758,28 @@ function StockDetail({
             <Typography fontWeight={700} variant="h5" mb={3}>
               HIGH
             </Typography>
-            {bots[index]["sell_condition"].map((item) => {
+            {bots[index]["sell_condition"].map((item, _index) => {
               return (
-                <div key={item}>
+                <div key={item.gt}>
                   <Box mr={6} fontSize={16} mb={2}>
-                    {item.gt}
+                    {isEdit ? (
+                      <Input
+                        type="number"
+                        placeholder={item.gt.toString()}
+                        value={botsEdit[index]["sell_condition"][_index].gt}
+                        onChange={(e) => {
+                          handleInputChange(
+                            e,
+                            index,
+                            _index,
+                            "sell_condition",
+                            "gt"
+                          );
+                        }}
+                      ></Input>
+                    ) : (
+                      item.gt
+                    )}
                   </Box>
                 </div>
               );
@@ -592,12 +814,79 @@ function StockDetail({
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog open={confirmOpen} onClose={closeConfirmDialog}>
+          <DialogTitle fontWeight="bold" variant="h4">
+            CONFIRM
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="h5">
+              Do you want to confirm these changes?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              sx={{ color: colors.primary[100], fontWeight: 700, fontSize: 16 }}
+              onClick={handleConfirmChanges}
+            >
+              Confirm
+            </Button>
+            <Button
+              sx={{
+                color: colors.redAccent[500],
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+              onClick={closeConfirmDialog}
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       </DialogContent>
       <DialogActions sx={{ backgroundColor: colors.primary[400] }}>
-        <Box ml={2}>
-          <PauseButton>
-            <button onClick={handlePauseRobot}>
-              {curRunning ? (
+        {!isEdit ? (
+          <Box ml={2}>
+            {curRunning ? (
+              <PauseButton>
+                <button onClick={handlePauseRobot}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography fontSize={20} p={1} fontWeight="bold">
+                      PAUSE
+                    </Typography>
+                    <PauseIcon fontSize="large" />
+                  </div>
+                </button>
+              </PauseButton>
+            ) : (
+              <StartButton>
+                <button onClick={handlePauseRobot}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography fontSize={20} p={1} fontWeight="bold">
+                      START
+                    </Typography>
+                    <StartIcon fontSize="large" />
+                  </div>
+                </button>
+              </StartButton>
+            )}
+          </Box>
+        ) : null}
+        {isEdit ? (
+          <Box display="flex" flexDirection="row" ml={2}>
+            <ConfirmButton>
+              <button onClick={openConfirmDialog}>
                 <div
                   style={{
                     display: "flex",
@@ -606,11 +895,14 @@ function StockDetail({
                   }}
                 >
                   <Typography fontSize={20} p={1} fontWeight="bold">
-                    PAUSE
+                    CONFIRM
                   </Typography>
-                  <PauseIcon fontSize="large" />
+                  <ConfirmIcon fontSize="large" />
                 </div>
-              ) : (
+              </button>
+            </ConfirmButton>
+            <CancelButton>
+              <button onClick={toggleEdit}>
                 <div
                   style={{
                     display: "flex",
@@ -619,24 +911,68 @@ function StockDetail({
                   }}
                 >
                   <Typography fontSize={20} p={1} fontWeight="bold">
-                    START
+                    CANCEL
                   </Typography>
-                  <StartIcon fontSize="large" />
+                  <CancelIcon fontSize="large" />
                 </div>
-              )}
-            </button>
-          </PauseButton>
-        </Box>
-        <EditButton>
-          <button onClick={handleDialogClose}>EDIT</button>
-        </EditButton>
-        <Box flexGrow={1}>
-          <DeleteButton>
-            <button onClick={openDeleteDialog}>DELETE</button>
-          </DeleteButton>
-        </Box>
+              </button>
+            </CancelButton>
+          </Box>
+        ) : (
+          <Box flexGrow={1}>
+            <EditButton>
+              <button onClick={toggleEdit}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography fontSize={20} p={1} fontWeight="bold">
+                    EDIT
+                  </Typography>
+                  <EditIcon fontSize="medium" />
+                </div>
+              </button>
+            </EditButton>
+          </Box>
+        )}
+        {isEdit ? (
+          <Box flexGrow={1}>
+            <DeleteButton>
+              <button onClick={openDeleteDialog}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography fontSize={20} p={1} fontWeight="bold">
+                    DELETE
+                  </Typography>
+                  <DeleteIcon fontSize="large" />
+                </div>
+              </button>
+            </DeleteButton>
+          </Box>
+        ) : null}
         <CloseButton>
-          <button onClick={handleDialogClose}>CLOSE</button>
+          <button onClick={handleDialogClose}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Typography fontSize={20} p={1} fontWeight="bold">
+                CLOSE
+              </Typography>
+              <CloseIcon fontSize="large" />
+            </div>
+          </button>
         </CloseButton>
       </DialogActions>
       <Snackbar
