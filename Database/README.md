@@ -8,7 +8,8 @@
 - Changing the date from using mySQL's method to taking in a string passed from the front end
 - Adding Getters to all fields in the database rather than having to parse a json string
 - Updating efficiency of the DB
-- adding ability to change buy conditions, sell conditions, and stock symbol
+- Ability to change buy conditions, sell conditions, and stock symbol
+- Ability to delete bots and remove relationship
 
 
 
