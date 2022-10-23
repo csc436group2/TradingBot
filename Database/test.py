@@ -10,7 +10,8 @@ def main() -> None:
     # comment out to preserve data
     myDBA.initNew()
 
-    myDBA.insertUser("Adam", "6125387", "16545")
+    myDBA.insertUser("Adam", "API KEY", "SECRET KEY")
+    myDBA.insertUser("Adam", "123", "123")
     myDBA.insertUser("Amit", "gd67g12hjw", "324463")
     myDBA.insertUser("Derek", "j35t84uy98r3kj2", "45d4168awd")
     myDBA.insertUser("Nick", "7823u4j289", "hbd54g1rd156es")
@@ -18,12 +19,27 @@ def main() -> None:
     print("--- Printing users ---")
     myDBA.printTable("user")
 
-    myDBA.addBot("AdamsBOT")
+    myDBA.addBot("AdamsBOT", "Test", "Test condition 1, condition 2, condition 3", "buy 1, buy 2")
+
+    bot = myDBA.isBotPresent("AdamsBOT")
+    print(bot)
 
     print("\n--- Printing bots ---")
     myDBA.printTable("bot")
 
+    print("ApiKey: " + str(myDBA.getAPIKey("Adam")))
+    print("SecretKey: " + str(myDBA.getSecretKey("Adam")))
+    print("Buy: " + str(myDBA.getBuyConditions("AdamsBOT")))
+    print("Sell: " + str(myDBA.getSellConditions("AdamsBOT")))
+    print("StockSymbol: " + str(myDBA.getStockSymbol("AdamsBOT")))
+
     myDBA.addRelationship("Adam", "AdamsBOT")
+    myDBA.setActive("Adam", "AdamsBOT")
+    res = myDBA.isActive("AdamsBOT")
+    print(res)
+    myDBA.setInactive("Adam", "AdamsBOT")
+    res = myDBA.isActive("AdamsBOT")
+    print(res)
 
     print("\n--- Printing user-bots ---")
     myDBA.printTable("userbot")

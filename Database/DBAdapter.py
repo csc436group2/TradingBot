@@ -47,7 +47,7 @@ class DBAdapter:
         self.cursor.execute("use ubt")
 
         userTable = "CREATE TABLE user( id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), apiKey VARCHAR(256), secretKey VARCHAR(50))"
-        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256), buyConditions VARCHAR(256))"
+        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256), buyConditions VARCHAR(256), added DATE)"
         userBotTable = "CREATE TABLE userBot (id int PRIMARY KEY AUTO_INCREMENT, UserID int, BotID int, isActive BOOL )"
 
         self.cursor.execute(userTable)
@@ -96,7 +96,7 @@ class DBAdapter:
         """
         if self.isBotPresent(name) is not None:
             return
-        sql = "INSERT INTO bot (name, stockSymbol, sellConditions, buyConditions) VALUES (%s, %s, %s, %s)"
+        sql = "INSERT INTO bot (name, stockSymbol, sellConditions, buyConditions, added) VALUES (%s, %s, %s, %s, CURDATE())"
         val = (name, stockSymbol, sellConditions, buyConditions)
         self.cursor.execute(sql, val)
     
@@ -147,9 +147,52 @@ class DBAdapter:
             return
         self.cursor.execute(f"UPDATE userbot SET isActive = {False} WHERE userID='{userID[0]}' AND botID='{botID[0]}'") 
 
+    def isActive(self, botName):
+        if self.isBotPresent(botName) is None:
+            return
+        self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
+        botID = self.cursor.fetchone()
+        self.cursor.execute(f"SELECT isActive FROM userBot WHERE botID='{botID[0]}'")
+        isActive = self.cursor.fetchone()
+        return bool(isActive[0])
+
+    def getAPIKey(self, userName):
+        res = self.isUserPresent(userName)
+        if res is None:
+            return
+        print(res)
+        return res[0][2]
+    
+    def getSecretKey(self, userName):
+        res = self.isUserPresent(userName)
+        if res is None:
+            return
+        return res[0][3]
+
+    def getBuyConditions(self, botName):
+        res = self.isBotPresent(botName)
+        if res is None:
+            return
+        return res[0][3]
+    
+    def getSellConditions(self, botName):
+        res = self.isBotPresent(botName)
+        if res is None:
+            return
+        return res[0][4]
+    
+    def getStockSymbol(self, botName):
+        res = self.isBotPresent(botName)
+        if res is None:
+            return
+        return res[0][2]
+        
+
 
     def printTable(self, tableName):
         self.cursor.execute(f"SELECT * FROM {tableName}")
         res = self.cursor.fetchall()
+        if res is None:
+            return
         for x in res:
             print(x)
