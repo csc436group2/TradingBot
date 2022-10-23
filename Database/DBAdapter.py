@@ -175,6 +175,12 @@ class DBAdapter:
             return
         return res[0][3]
     
+    def setBuyConditions(self, botName, newCond):
+        self.cursor.execute(f"UPDATE bot SET buyConditions = '{newCond}' WHERE name = '{botName}'")
+
+    def setSellConditions(self, botName, newCond):
+        self.cursor.execute(f"UPDATE bot SET sellConditions = '{newCond}' WHERE name = '{botName}'")
+    
     def getSellConditions(self, botName):
         res = self.isBotPresent(botName)
         if res is None:
@@ -186,7 +192,10 @@ class DBAdapter:
         if res is None:
             return
         return res[0][2]
-        
+
+    def setStockSymbol(self, botName, newCond):
+        self.cursor.execute(f"UPDATE bot SET stockSymbol = '{newCond}' WHERE name = '{botName}'")
+    
 
 
     def printTable(self, tableName):

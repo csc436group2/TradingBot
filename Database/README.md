@@ -35,13 +35,16 @@
 `addBot()` | adds bot into the database by taking the name, stocksymbol, sell conditions, and buy conditions
 `isUserPresent()` | checks if the user is present and returns the entire entry
 `isBotPresent()` | checks if the bot is present and returns the entire entry
-`addRelationship()`| adds a relationship between the bot and the user
-`setActive()` | sets a bot active
-`setInactive()` | sets a bot as inactive
-`isActive()` | checks if a given bot is active
-`getAPIKey()` | gets api key for user
-`getSecretKey()` | gets secret key for user
-`getBuyConditions()` | gets the buy conditions for bot
-`getSellConditions()` | gets the sell condtions for bot
-`getStockSymbol()` | gets the stock symbol for the bot
-`printTable()` | prints the table for user, bot, or userBot
+`addRelationship()`     | adds a relationship between the bot and the user
+`setActive()`           | sets a bot active
+`setInactive()`         | sets a bot as inactive
+`isActive()`            | checks if a given bot is active
+`getAPIKey()`           | gets api key for user
+`getSecretKey()`        | gets secret key for user
+`getBuyConditions()`    | gets the buy conditions for bot
+`getSellConditions()`   | gets the sell condtions for bot
+`getStockSymbol()`      | gets the stock symbol for the bot
+`setSellCondition()`    | sets the sell condition for a bot
+`setBuyCondition()`     | sets the buyCondition for a bot
+`setStockSymbol()`      | sets the stock symbol for a bot
+`printTable()`          | prints the table for user, bot, or userBot
