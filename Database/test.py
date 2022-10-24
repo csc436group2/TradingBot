@@ -62,6 +62,15 @@ def main() -> None:
     myDBA.setInactive("Adam", "AdamsBOT")
 
     myDBA.printTable("userbot")
+    print("Adams bots: ")
+    print(myDBA.getUserBots("API KEY", "SECRET KEY"))
+    myDBA.removeRelationship(2)
+    print()
+    myDBA.printTable("userbot")
+    myDBA.removeBot(1)
+    print()
+    print(myDBA.getUserBots("API KEY", "SECRET KEY"))
+    myDBA.printTable("bot")
 
 
 

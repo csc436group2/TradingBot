@@ -48,7 +48,7 @@ class DBAdapter:
         self.cursor.execute("use ubt")
 
         userTable = "CREATE TABLE user( id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), apiKey VARCHAR(256), secretKey VARCHAR(50))"
-        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256), buyConditions VARCHAR(256), added DATE)"
+        botTable = "CREATE TABLE bot (id int PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), stockSymbol VARCHAR(20), sellConditions VARCHAR(256), buyConditions VARCHAR(256), added VARCHAR(10))"
         userBotTable = "CREATE TABLE userBot (id int PRIMARY KEY AUTO_INCREMENT, UserID int, BotID int, isActive BOOL )"
 
         self.cursor.execute(userTable)
@@ -219,6 +219,15 @@ class DBAdapter:
         self.cursor.execute(sql)
         ids = self.cursor.fetchall()
         return ids
+
+    def removeBot(self, botID):
+        sql = f"""DELETE FROM bot WHERE bot.id = {botID}"""
+        self.cursor.execute(sql)
+        self.removeRelationship(botID)
+    
+    def removeRelationship(self, botID):
+        sql = f"""DELETE FROM userbot WHERE userbot.BotID = {botID}"""
+        self.cursor.execute(sql)
 
 
     def printTable(self, tableName):
