@@ -104,7 +104,7 @@ function StockDetail({
         sell_condition: bots[index]["sell_condition"],
       }),
     };
-    fetch("http://localhost:5000/api/edit", requestOptions)
+    fetch("http://localhost:5000/edit", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -158,7 +158,7 @@ function StockDetail({
         stock_sym: bots[index]["stockSym"],
       }),
     };
-    fetch("http://localhost:5000/api/deletebot", requestOptions)
+    fetch("http://localhost:5000/delete", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -185,7 +185,7 @@ function StockDetail({
         stock_sym: bots[index]["stockSym"],
       }),
     };
-    fetch("http://localhost:5000/api/pause", requestOptions)
+    fetch("http://localhost:5000/pause", requestOptions)
       .then(async (response) => {
         const isJson = response.headers
           .get("content-type")
@@ -237,8 +237,8 @@ function StockDetail({
 
   const DeleteButton = styled.div`
     button {
-      max-width: 120px;
-      min-width: 120px;
+      max-width: 140px;
+      min-width: 140px;
       height: 40px;
       border: none;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
@@ -325,8 +325,8 @@ function StockDetail({
 
   const CancelButton = styled.div`
     button {
-      max-width: 120px;
-      min-width: 120px;
+      max-width: 140px;
+      min-width: 140px;
       height: 40px;
       border: none;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
@@ -347,8 +347,8 @@ function StockDetail({
 
   const ConfirmButton = styled.div`
     button {
-      max-width: 140px;
-      min-width: 140px;
+      max-width: 150px;
+      min-width: 150px;
       height: 40px;
       border: none;
       box-shadow: 0px 14px 9px -15px rgba(0, 0, 0, 0.25);
