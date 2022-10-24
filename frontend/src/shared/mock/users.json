@@ -1,0 +1,22 @@
+[
+    {
+        "userName": "amit", 
+        "apiKey": "key",
+        "secretKey": "key"
+    },
+    {
+        "userName": "adam", 
+        "apiKey": "key",
+        "secretKey": "key"
+    },
+    {
+        "userName": "derek", 
+        "apiKey": "key",
+        "secretKey": "key"
+    },
+    {
+        "userName": "nick", 
+        "apiKey": "key",
+        "secretKey": "key"
+    }
+]
