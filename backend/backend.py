@@ -4,7 +4,7 @@ from contextlib import redirect_stdout
 import json
 import os
 import sys
-from typing_extensions import reveal_type
+# from typing_extensions import reveal_type
 
 #FinViz Imports
 from finviz.screener import Screener
@@ -15,8 +15,9 @@ import alpaca_trade_api as tradeapi
 
 
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
-sys.path.append('/Users/d/Desktop/TradingBot/Database')
+sys.path.append('/Users/d/Desktop/cs436/TradingBot/Database')
 from DBAdapter import *
+
 
 
 
@@ -36,9 +37,10 @@ from flask_login import (
 app = Flask(__name__)
 CORS(app)
 
+#should connect to Azure/Cloud Server we set up for production
 db = DBAdapter("127.0.0.1", "")
 db.connect()
-db.initNew()
+db.initNew() # may not need to make new
 
 
 # app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
@@ -54,19 +56,20 @@ db.initNew()
 # def load_user(user_id):
     # DBAdapter.getUser(userId)
 
-@app.route( "/login", methods = ['POST'])
+@app.route( "/api/login", methods = ['POST'])
 def signUploging(): 
      #fetched name, key and secret
-    incomingName = request.json["name"]
+    incomingName = request.json["userName"]
     incomingKey = request.json["apiKey"]
     incomingSecret = request.json["secretKey"]
     
     retDict = db.isUserPresent(incomingName)
+    print(retDict)
     if retDict == None:
         #no entry exists, make entry
         db.insertUser(incomingName, incomingKey , incomingSecret)
         return make_response(jsonify("Success Sign-Up"),201) #successful sign-up
-    elif (retDict["apiKey"] == incomingKey and retDict["secretKey"] == incomingSecret):
+    elif (retDict[0][2] == incomingKey and retDict[0][3] == incomingSecret):
         return make_response(jsonify("Success Login") ,200) #successful login
     else:
         return make_response(jsonify("Wrong Info Provided."),406) #wrong info provided    
@@ -131,7 +134,7 @@ def removeBot():
         #do some thing with DB
         return make_response(jsonify("Success"), 200)
 
-@app.route( "/getbots", methods = ['GET'])
+@app.route( "/getbots", methods = ['POST'])
 def listBots():
     retList = db.getUserBots()
     if retList == None:
@@ -140,14 +143,14 @@ def listBots():
         return jsonify(retList)
         #parse retList to make list of bot names
         
-@app.route( "/detail", methods = ['GET'])
+@app.route( "/detail", methods = ['POST'])
 def finVizSymbolData():
     symbol = 'MSFT' #example should get specific symbol 
     retJson = finviz.get_stock(symbol)
     print(retJson) #should be json info
     return retJson
 
-@app.route( "/portfolio", methods = ['GET'])
+@app.route( "/portfolio", methods = ['POST'])
 def alpacaHistory():
     skey = "" #need to get key from DB
     apiKey = "" #need to get apiKey from DB
@@ -155,6 +158,11 @@ def alpacaHistory():
     api = tradeapi.REST(apiKey,skey)
     api.get_portfolio_history()
     return api
+
+@app.route( "/api/dumpDB", methods = ['GET'])
+def dbDumb():
+    db.printTable("user")
+    return "hello"
     
 # @app.route("/api/toggleBotPause", methods = ['POST'])
 # def toggleBotPause():
