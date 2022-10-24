@@ -2,7 +2,7 @@ import DBAdapter as DBA
 
 def main() -> None:
     # add your password here
-    password = ""
+    password = "Wild-Cat-26"
     myDBA = DBA.DBAdapter("localhost", password)
     myDBA.connect()
     
@@ -16,10 +16,13 @@ def main() -> None:
     myDBA.insertUser("Derek", "j35t84uy98r3kj2", "45d4168awd")
     myDBA.insertUser("Nick", "7823u4j289", "hbd54g1rd156es")
 
+    print(myDBA.getUser("7823u4j289", "hbd54g1rd156es"))
+    
     print("--- Printing users ---")
     myDBA.printTable("user")
 
     myDBA.addBot("AdamsBOT", "Test", "Test condition 1, condition 2, condition 3", "buy 1, buy 2")
+    myDBA.addBot("AdamsBOT2", "Test2", "SELL ALL", "BUY NONE")
 
     bot = myDBA.isBotPresent("AdamsBOT")
     print(bot)
@@ -41,6 +44,8 @@ def main() -> None:
     print("StockSymbol: " + str(myDBA.getStockSymbol("AdamsBOT")))
 
     myDBA.addRelationship("Adam", "AdamsBOT")
+    myDBA.addRelationship("Adam", "AdamsBOT2")
+    print(myDBA.getUserBots("API KEY", "SECRET KEY"))
     myDBA.setActive("Adam", "AdamsBOT")
     res = myDBA.isActive("AdamsBOT")
     print(res)

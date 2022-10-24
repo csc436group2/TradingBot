@@ -1,3 +1,4 @@
+from getpass import getuser
 import mysql.connector as connector
 
 """
@@ -196,6 +197,28 @@ class DBAdapter:
     def setStockSymbol(self, botName, newCond):
         self.cursor.execute(f"UPDATE bot SET stockSymbol = '{newCond}' WHERE name = '{botName}'")
     
+    def getUser(self, apiKey: str, secretKey: str):
+        sql = f"""  SELECT *
+                    FROM user
+                    WHERE user.apiKey = '{apiKey}'
+                    AND user.secretKey = '{secretKey}'"""
+        self.cursor.execute(sql)
+        res = self.cursor.fetchall()
+        return res
+
+    def getUserBots(self, apikey : str, secreykey : str):
+        res = self.getUser(apikey, secreykey)
+        if res is None:
+            return
+        res = res[0][0]
+        sql = f"""  SELECT bot.id, bot.name, bot.stockSymbol, bot.sellConditions, bot.buyConditions
+                    FROM bot 
+                    INNER JOIN userbot on bot.id = userbot.BotID
+                    WHERE UserID = '{res}'
+                """
+        self.cursor.execute(sql)
+        ids = self.cursor.fetchall()
+        return ids
 
 
     def printTable(self, tableName):
