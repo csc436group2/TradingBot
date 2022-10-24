@@ -1,4 +1,3 @@
-from getpass import getuser
 import mysql.connector as connector
 
 """
