@@ -36,9 +36,9 @@ app = Flask(__name__)
 CORS(app, support_credentials=True)
 
 # should connect to Azure/Cloud Server we set up for production
-db = DBAdapter("127.0.0.1", "golden11")
+db = DBAdapter("127.0.0.1", "")
 db.connect()
-db.initNew()  # may not need to make new
+# db.initNew()  # may not need to make new
 
 
 # app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
@@ -61,51 +61,51 @@ def set_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "*"
     return response
 
-
 @app.route("/api/login", methods=['POST'])
 def signUploging():
      # fetched name, key and secret
-    incomingName = request.json["userName"]
-    incomingKey = request.json["apiKey"]
-    incomingSecret = request.json["secretKey"]
+    incomingName = str(request.json["userName"])
+    incomingKey = str(request.json["apiKey"])
+    incomingSecret = str(request.json["secretKey"])
 
     retDict = db.isUserPresent(incomingName)
     print(retDict)
+    print(db.printTable('user'))
     if retDict == None:
         # no entry exists, make entry
         db.insertUser(incomingName, incomingKey, incomingSecret)
+        print(db.printTable('user'))
         # successful sign-up
-        return make_response(jsonify("Success Sign-Up"), 201)
+        return "Success Sign-Up", 201
     elif (retDict[0][2] == incomingKey and retDict[0][3] == incomingSecret):
-        return make_response(jsonify("Success Login"), 200)  # successful login
+        return "Success Login", 200  # successful login
     else:
         # wrong info provided
-        return make_response(jsonify("Wrong Info Provided."), 406)
+        return "Wrong Info Provided.", 406
 
 
 @app.route("/create", methods=['POST'])
 def createBot():
-    incomingKey = request.json["apiKey"]
-    incomingSecret = request.json["secretKey"]
+    incomingKey = str(request.json["apiKey"])
+    incomingSecret = str(request.json["secretKey"])
     stockSym = request.json["stockSym"]
     botName = request.json["botName"]
     buyCond = request.json["buy_condition"]
     sellCond = request.json["sell_condition"]
     createDate = request.json["creation_date"]
     isRunning = request.json["isRunning"]
-
     hasBot = db.isBotPresent(botName)
-
     if (hasBot == None):
         # create bot in bot table
-        db.addBot(botName, stockSym, sellCond, buyCond)
+        db.addBot(botName, stockSym, json.dumps(sellCond), json.dumps(buyCond), createDate)
         # get user entry dict
         retDict = db.getUser(incomingKey, incomingSecret)
+        print(retDict)
         # add relationship between current user and bot created
-        db.addRelationship(retDict["name"], botName)
-        return make_response(jsonify("Success", 200))
+        db.addRelationship(retDict[0][1], botName)
+        return "Success", 200
     else:
-        return make_response(jsonify("Wrong Info Provided"), 406)
+        return "Wrong Info Provided", 406
 
 
 @app.route("/edit", methods=['PUT'])
@@ -147,13 +147,16 @@ def removeBot():
         return make_response(jsonify("Success"), 200)
 
 
-@app.route("/getbots", methods=['POST'])
+@app.route("/getbots", methods=['GET'])
 def listBots():
-    incomingKey = request.json["apiKey"]
-    incomingSecret = request.json["secretKey"]
+    incomingKey = request.args["apiKey"]
+    incomingSecret = request.args["secretKey"]
+    print(incomingKey)
+    print(incomingSecret)
     retList = db.getUserBots(incomingKey, incomingSecret)
-    if retList == None:
-        return []
+    print(retList)
+    if len(retList) == 0:
+        return jsonify([])
     else: 
         return jsonify(retList)
         # parse retList to make list of bot names
