@@ -36,7 +36,7 @@ const Topbar = () => {
     window.localStorage.removeItem("userName");
     window.localStorage.removeItem("apiKey");
     window.localStorage.removeItem("secretKey");
-    nav("/");
+    nav("/login");
   };
 
   return (
@@ -55,7 +55,11 @@ const Topbar = () => {
       <Box
         display="flex"
         alignItems="center"
-        bgcolor={theme.palette.mode === 'dark' ? colors.blueAccent[500] : colors.blueAccent[800]}
+        bgcolor={
+          theme.palette.mode === "dark"
+            ? colors.blueAccent[500]
+            : colors.blueAccent[800]
+        }
         borderRadius={20}
         height={38}
       >
@@ -66,12 +70,9 @@ const Topbar = () => {
             <LightModeOutlinedIcon />
           )}
         </IconButton>
-        {(window.location.pathname === "/home" ||
-          window.location.pathname === "/createBot") && (
-            <IconButton onClick={handleMenu}>
-              <PersonOutlinedIcon />
-            </IconButton>
-        )}
+        <IconButton onClick={handleMenu}>
+          <PersonOutlinedIcon />
+        </IconButton>
         {(window.location.pathname === "/home" ||
           window.location.pathname === "/createBot") && (
           <Box mt={1.3} bgcolor>

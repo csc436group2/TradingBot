@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import records from "../shared/mock/users.json";
 import { Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Input from "./InputTextField";
+import Bot from "../models/bot";
 
 function LoginComponent() {
   const nav = useNavigate();
@@ -14,76 +14,8 @@ function LoginComponent() {
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
 
-  const loginHttpRequest = () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userName: userName,
-        apiKey: apiKey,
-        secretKey: secretKey,
-      }),
-    };
-    fetch("http://localhost:5000/api/login", requestOptions)
-      .then(async (response) => {
-        const isJson = response.headers
-          .get("content-type")
-          ?.includes("application/json");
-        const data = isJson && (await response.json());
-        if (!response.ok) {
-          const e = (data && data.message) || response.status;
-          return Promise.reject(e);
-        }
-      })
-      .catch((error) => {
-        console.error("Error Code:", error);
-      });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let verification = true;
-    if (userName.length < 4) {
-      verification = false;
-    }
-    if (apiKey.length < 1) {
-      verification = false;
-    }
-    if (secretKey.length < 1) {
-      verification = false;
-    }
-    if (verification) {
-      records.forEach((user) => {
-        if (
-          user.userName === userName &&
-          user.apiKey === apiKey &&
-          user.secretKey === secretKey
-        ) {
-          if (process.env.NODE_ENV !== "development") {
-            loginHttpRequest();
-          }
-          window.localStorage.setItem("isLoggedIn", true);
-          window.localStorage.setItem("userName", userName);
-          window.localStorage.setItem("apiKey", apiKey);
-          window.localStorage.setItem("secretKey", secretKey);
-          if (!window.localStorage.getItem("bots")) {
-            const list = [];
-            window.localStorage.setItem("bots", JSON.stringify(list));
-          }
-          nav("/home", {
-            state: user,
-          });
-        }
-      });
-      setIsSubmitted(true);
-    } else {
-      setIsSubmitted(true);
-    }
-    return verification;
-  };
-
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <BoxContainter>
         <Typography
           variant="h4"
@@ -130,16 +62,72 @@ function LoginComponent() {
           }}
           variant="contained"
           color="warning"
+          onClick={async () => {
+            const requestOptions = {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userName: userName,
+                apiKey: apiKey,
+                secretKey: secretKey,
+              }),
+            };
+            await fetch("http://127.0.0.1:5000/api/login", requestOptions)
+              .then(function (response) {
+                console.log(response);
+                if (!response.ok) {
+                  setIsSubmitted(true);
+                } else {
+                  setIsSubmitted(false);
+                  window.localStorage.setItem("isLoggedIn", true);
+                  window.localStorage.setItem("userName", userName);
+                  window.localStorage.setItem("apiKey", apiKey);
+                  window.localStorage.setItem("secretKey", secretKey);
+                }
+              })
+              .catch((error) => {
+                console.error("Error Code:", error);
+              });
+            await fetch(
+              `http://127.0.0.1:5000/getbots?apiKey=${apiKey}&secretKey=${secretKey}`
+            )
+              .then(function (response) {
+                console.log(response);
+                return response.json();
+              })
+              .then(function (data) {
+                let test = data;
+                console.log(test);
+                let bots = [];
+                test.map((e) => {
+                  const botModel = new Bot(
+                    e[1],
+                    e[2],
+                    e[5],
+                    false,
+                    JSON.parse(e[4]),
+                    JSON.parse(e[3])
+                  );
+                  bots.push(botModel);
+                  return 0;
+                });
+                window.localStorage.setItem("bots", JSON.stringify(bots));
+              })
+              .catch((error) => {
+                console.error("Error Code:", error);
+              })
+              .finally(() => nav("/home"));
+          }}
         >
           Login
         </button>
-        {isSubmitted === true && (
+        {isSubmitted && (
           <Typography variant="subtitle1" textAlign="center" color={"red"}>
             Incorrect fields were provided.
           </Typography>
         )}
       </BoxContainter>
-    </form>
+    </div>
   );
 }
 

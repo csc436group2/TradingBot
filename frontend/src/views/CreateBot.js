@@ -194,9 +194,7 @@ function CreateBot() {
         sellCnList
       );
       let bots = window.localStorage.getItem("bots");
-      if (bots === null) {
-        bots = [botModel];
-      } else if (bots.length === 0) {
+      if (bots.length === 0) {
         bots = JSON.parse(localStorage.getItem("bots"), "[]");
         bots = [botModel];
       } else {
@@ -694,7 +692,79 @@ function CreateBot() {
         <FormWrapper style={{ backgroundColor: colors.blueAccent[800] }}>
           <Box display="flex" flexDirection="row">
             <MyButton>
-              <button onClick={handleCreateBot}>CREATE MY BOT</button>
+              <button
+                onClick={async () => {
+                  if (
+                    stepCount.symbol &&
+                    stepCount.buy & stepCount.sell &&
+                    stepCount.botName
+                  ) {
+                    const requestOptions = {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        secretKey: window.localStorage.getItem("secretKey"),
+                        apiKey: window.localStorage.getItem("apiKey"),
+                        stockSym: stockSym,
+                        botName: botName,
+                        buy_condition: buyCnList,
+                        sell_condition: sellCnList,
+                        creation_date: dateFormat,
+                        isRunning: true,
+                      }),
+                    };
+                    await fetch("http://127.0.0.1:5000/create", requestOptions)
+                      .then(async (response) => {
+                        console.log(
+                          "RESPONSE: " +
+                            response.status +
+                            "\n" +
+                            "STATUS: " +
+                            response.statusText
+                        );
+                        if (response.status === 200) {
+                          const botModel = new Bot(
+                            botName,
+                            stockSym,
+                            dateFormat,
+                            false,
+                            buyCnList,
+                            sellCnList
+                          );
+                          let bots = window.localStorage.getItem("bots");
+                          if (bots.length === 0) {
+                            bots = JSON.parse(
+                              localStorage.getItem("bots"),
+                              "[]"
+                            );
+                            bots = [botModel];
+                          } else {
+                            bots = JSON.parse(
+                              window.localStorage.getItem("bots"),
+                              "[]"
+                            );
+                            bots.push(botModel);
+                          }
+                          //localStorage.setItem("bots", JSON.stringify([]));
+                          let test = JSON.parse(
+                            window.localStorage.getItem("bots")
+                          );
+                          console.log(JSON.parse(test[0][3]));
+                        } else {
+                          let test = JSON.parse(
+                            window.localStorage.getItem("bots")
+                          );
+                          console.log(JSON.parse(test[0][3]));
+                        }
+                      })
+                      .catch((error) => {
+                        console.error("Error Code:", error);
+                      });
+                  }
+                }}
+              >
+                CREATE MY BOT
+              </button>
             </MyButton>
             <CancelButton>
               <button onClick={handleCancel}>CANCEL</button>

@@ -2,7 +2,7 @@ import DBAdapter as DBA
 
 def main() -> None:
     # add your password here
-    password = "Wild-Cat-26"
+    password = ""
     myDBA = DBA.DBAdapter("localhost", password)
     myDBA.connect()
     

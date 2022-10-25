@@ -3,7 +3,7 @@ import LoginView from "./views/Login";
 import "./assets/css/fonts.css";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import Topbar from "./components/Topbar";
+import Topbar from "./components/TopBar";
 import Dashboard from "./views/Dashboard";
 import CreateBot from "./views/CreateBot";
 function App() {

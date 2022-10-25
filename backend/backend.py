@@ -1,29 +1,4 @@
 # Python standard libraries
-import cmd
-from contextlib import redirect_stdout
-import json
-import os
-import sys
-# from typing_extensions import reveal_type
-
-#FinViz Imports
-from finviz.screener import Screener
-import finviz
-
-#Alpaca Imports
-import alpaca_trade_api as tradeapi
-
-
-# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
-sys.path.append('/Users/d/Desktop/cs436/TradingBot/Database')
-from DBAdapter import *
-
-
-
-
-# Third-party libraries
-from flask import Flask, jsonify, request, make_response
-from flask_cors import CORS
 from flask_login import (
     LoginManager,
     current_user,
@@ -31,16 +6,39 @@ from flask_login import (
     login_user,
     logout_user,
 )
+from flask_cors import CORS
+from flask import Flask, jsonify, request, make_response
+import cmd
+from contextlib import redirect_stdout
+import json
+import os
+import sys
+# from typing_extensions import reveal_type
+
+# FinViz Imports
+from finviz.screener import Screener
+import finviz
+
+# Alpaca Imports
+import alpaca_trade_api as tradeapi
+
+
+# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
+sys.path.append('../Database')
+from DBAdapter import *
+
+
+# Third-party libraries
 
 
 # Flask app setup
 app = Flask(__name__)
-CORS(app)
+CORS(app, support_credentials=True)
 
-#should connect to Azure/Cloud Server we set up for production
-db = DBAdapter("127.0.0.1", "")
+# should connect to Azure/Cloud Server we set up for production
+db = DBAdapter("127.0.0.1", "golden11")
 db.connect()
-db.initNew() # may not need to make new
+db.initNew()  # may not need to make new
 
 
 # app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
@@ -56,25 +54,36 @@ db.initNew() # may not need to make new
 # def load_user(user_id):
     # DBAdapter.getUser(userId)
 
-@app.route( "/api/login", methods = ['POST'])
-def signUploging(): 
-     #fetched name, key and secret
+@app.after_request
+def set_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    return response
+
+
+@app.route("/api/login", methods=['POST'])
+def signUploging():
+     # fetched name, key and secret
     incomingName = request.json["userName"]
     incomingKey = request.json["apiKey"]
     incomingSecret = request.json["secretKey"]
-    
+
     retDict = db.isUserPresent(incomingName)
     print(retDict)
     if retDict == None:
-        #no entry exists, make entry
-        db.insertUser(incomingName, incomingKey , incomingSecret)
-        return make_response(jsonify("Success Sign-Up"),201) #successful sign-up
+        # no entry exists, make entry
+        db.insertUser(incomingName, incomingKey, incomingSecret)
+        # successful sign-up
+        return make_response(jsonify("Success Sign-Up"), 201)
     elif (retDict[0][2] == incomingKey and retDict[0][3] == incomingSecret):
-        return make_response(jsonify("Success Login") ,200) #successful login
+        return make_response(jsonify("Success Login"), 200)  # successful login
     else:
-        return make_response(jsonify("Wrong Info Provided."),406) #wrong info provided    
-    
-@app.route("/create", methods = ['POST'])
+        # wrong info provided
+        return make_response(jsonify("Wrong Info Provided."), 406)
+
+
+@app.route("/create", methods=['POST'])
 def createBot():
     incomingKey = request.json["apiKey"]
     incomingSecret = request.json["secretKey"]
@@ -84,64 +93,70 @@ def createBot():
     sellCond = request.json["sell_condition"]
     createDate = request.json["creation_date"]
     isRunning = request.json["isRunning"]
-    
+
     hasBot = db.isBotPresent(botName)
-    
-    if(hasBot == None):
-        #create bot in bot table
+
+    if (hasBot == None):
+        # create bot in bot table
         db.addBot(botName, stockSym, sellCond, buyCond)
-        #get user entry dict
+        # get user entry dict
         retDict = db.getUser(incomingKey, incomingSecret)
-        #add relationship between current user and bot created
+        # add relationship between current user and bot created
         db.addRelationship(retDict["name"], botName)
         return make_response(jsonify("Success", 200))
-    else: 
-        return make_response(jsonify("Wrong Info Provided"),406)
+    else:
+        return make_response(jsonify("Wrong Info Provided"), 406)
 
-@app.route( "/edit", methods = ['PUT'])
+
+@app.route("/edit", methods=['PUT'])
 def editBot():
     botName = request.json["botName"]
     retVal = db.isBotPresent(botName)
-    if(retVal == None):
+    if (retVal == None):
         return make_response(jsonify("Wrong Info Provided"), 406)
-    else: 
-        #change bot 
+    else:
+        # change bot
         return make_response(jsonify("Success"), 200)
-    
-@app.route( "/pause", methods = ['PUT'])
+
+
+@app.route("/pause", methods=['PUT'])
 def pause():
     botName = request.json("botName")
     user = request.json("name")
     retVal = db.isBotPresent(botName)
-    if(retVal == None):
+    if (retVal == None):
         return make_response(jsonify("Wrong Info Provided"), 406)
     else:
-        #do some thing with DB
+        # do some thing with DB
         curBotActivity = db.getBotStatus(botName)
-        if(curBotActivity == False):
+        if (curBotActivity == False):
             db.setActive(user, botName)
         else:
             db.setInactive(user, botName)
         return make_response(jsonify("Success"), 200)
-    
-@app.route( "/delete", methods = ['POST'])
+
+
+@app.route("/delete", methods=['POST'])
 def removeBot():
     botName = request.json("botName")
     retVal = db.isBotPresent(botName)
-    if(retVal == None):
+    if (retVal == None):
         return make_response(jsonify("Wrong Info Provided"), 406)
     else:
-        #do some thing with DB
+        # do some thing with DB
         return make_response(jsonify("Success"), 200)
 
-@app.route( "/getbots", methods = ['POST'])
+
+@app.route("/getbots", methods=['POST'])
 def listBots():
-    retList = db.getUserBots()
+    incomingKey = request.json["apiKey"]
+    incomingSecret = request.json["secretKey"]
+    retList = db.getUserBots(incomingKey, incomingSecret)
     if retList == None:
         return []
     else: 
         return jsonify(retList)
-        #parse retList to make list of bot names
+        # parse retList to make list of bot names
         
 @app.route( "/detail", methods = ['POST'])
 def finVizSymbolData():
@@ -166,7 +181,7 @@ def dbDumb():
     
 # @app.route("/api/toggleBotPause", methods = ['POST'])
 # def toggleBotPause():
-#update bot field in DB
+# update bot field in DB
 
 # if __name__ == '__main__':
 #     context = ('server.crt', 'server.key')#certificate and key files

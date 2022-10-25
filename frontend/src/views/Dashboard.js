@@ -3,7 +3,7 @@ import { Box, Divider, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BotDetail from "../models/botDetail";
 import StockDetail from "../components/StockDetail";
 import { Line } from "react-chartjs-2";
@@ -384,7 +384,7 @@ class NoBotCreated extends React.Component {
       <div>
         <Typography variant="h5" p={3}>
           You don't appear to have a bot created with us yet. Let's get you
-          started.
+          started!
         </Typography>
         <button style={{ marginLeft: 350 }} onClick={handleCreateBot}>
           CREATE BOT
