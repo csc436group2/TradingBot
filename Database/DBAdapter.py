@@ -33,6 +33,7 @@ class DBAdapter:
             database="ubt"
             )
         self.cursor = self.db.cursor()
+        self.cursor.execute("START TRANSACTION")
 
     def initNew(self):
         """
@@ -67,6 +68,7 @@ class DBAdapter:
         sql = "INSERT INTO user (name, apiKey, secretKey) VALUES (%s, %s, %s)"
         val = (name, apiKey, secretKey)
         self.cursor.execute(sql, val)
+        self.db.commit()
     
     def isUserPresent(self, name: str):
         """
@@ -84,20 +86,21 @@ class DBAdapter:
     def isBotPresent(self, name):
         self.cursor.execute(f"SELECT * FROM bot WHERE name='{name}'")
         res = self.cursor.fetchall()
+        self.db.commit()
         if res == []:
             return None
         else:
             return res
 
-    def addBot(self, name, stockSymbol, sellConditions, buyConditions):
+    def addBot(self, name, stockSymbol, sellConditions, buyConditions, dateAdded):
         """
         Adds a bot to the db
         name: the name of the bot
         """
         if self.isBotPresent(name) is not None:
             return
-        sql = "INSERT INTO bot (name, stockSymbol, sellConditions, buyConditions, added) VALUES (%s, %s, %s, %s, CURDATE())"
-        val = (name, stockSymbol, sellConditions, buyConditions)
+        sql = "INSERT INTO bot (name, stockSymbol, sellConditions, buyConditions, added) VALUES (%s, %s, %s, %s, %s)"
+        val = (name, stockSymbol, sellConditions, buyConditions, dateAdded)
         self.cursor.execute(sql, val)
     
     def addRelationship(self, userName, botName):
@@ -109,8 +112,10 @@ class DBAdapter:
         # get userID
         self.cursor.execute(f"SELECT * FROM user WHERE name='{userName}'")
         user = self.cursor.fetchone()
+        self.db.commit()
         self.cursor.execute(f"SELECT * FROM bot WHERE name='{botName}'")
         bot = self.cursor.fetchone()
+        self.db.commit()
         if user is None or bot is None:
             return
         userID = user[0]
@@ -118,6 +123,7 @@ class DBAdapter:
         sql = "INSERT INTO userbot (UserID, BotID, isActive) values (%s, %s, %s)"
         val = (userID, botID, False)
         self.cursor.execute(sql, val)
+        self.db.commit()
     
     def setActive(self, userName, botName):
         """
@@ -127,11 +133,14 @@ class DBAdapter:
         """
         self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
         botID = self.cursor.fetchone()
+        self.db.commit()
         self.cursor.execute(f"SELECT id FROM user WHERE name='{userName}'")
         userID = self.cursor.fetchone()
+        self.db.commit()
         if userID is None or botID is None:
             return
         self.cursor.execute(f"UPDATE userbot SET isActive = {True} WHERE userID='{userID[0]}' AND botID='{botID[0]}'")
+        self.db.commit()
 
     def setInactive(self, userName, botName):
         """
@@ -141,19 +150,24 @@ class DBAdapter:
         """
         self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
         botID = self.cursor.fetchone()
+        self.db.commit()
         self.cursor.execute(f"SELECT id FROM user WHERE name='{userName}'")
         userID = self.cursor.fetchone()
+        self.db.commit()
         if userID is None or botID is None:
             return
-        self.cursor.execute(f"UPDATE userbot SET isActive = {False} WHERE userID='{userID[0]}' AND botID='{botID[0]}'") 
+        self.cursor.execute(f"UPDATE userbot SET isActive = {False} WHERE userID='{userID[0]}' AND botID='{botID[0]}'")
+        self.db.commit() 
 
     def isActive(self, botName):
         if self.isBotPresent(botName) is None:
             return
         self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
         botID = self.cursor.fetchone()
+        self.db.commit()
         self.cursor.execute(f"SELECT isActive FROM userBot WHERE botID='{botID[0]}'")
         isActive = self.cursor.fetchone()
+        self.db.commit()
         return bool(isActive[0])
 
     def getAPIKey(self, userName):
@@ -177,9 +191,11 @@ class DBAdapter:
     
     def setBuyConditions(self, botName, newCond):
         self.cursor.execute(f"UPDATE bot SET buyConditions = '{newCond}' WHERE name = '{botName}'")
+        self.db.commit()
 
     def setSellConditions(self, botName, newCond):
         self.cursor.execute(f"UPDATE bot SET sellConditions = '{newCond}' WHERE name = '{botName}'")
+        self.db.commit()
     
     def getSellConditions(self, botName):
         res = self.isBotPresent(botName)
@@ -203,6 +219,7 @@ class DBAdapter:
                     AND user.secretKey = '{secretKey}'"""
         self.cursor.execute(sql)
         res = self.cursor.fetchall()
+        self.db.commit()
         return res
 
     def getUserBots(self, apikey : str, secreykey : str):
@@ -217,16 +234,21 @@ class DBAdapter:
                 """
         self.cursor.execute(sql)
         ids = self.cursor.fetchall()
+        self.db.commit()
+        if ids is []:
+            return
         return ids
 
     def removeBot(self, botID):
         sql = f"""DELETE FROM bot WHERE bot.id = {botID}"""
         self.cursor.execute(sql)
+        self.db.commit()
         self.removeRelationship(botID)
     
     def removeRelationship(self, botID):
         sql = f"""DELETE FROM userbot WHERE userbot.BotID = {botID}"""
         self.cursor.execute(sql)
+        self.db.commit()
 
 
     def printTable(self, tableName):
@@ -236,3 +258,4 @@ class DBAdapter:
             return
         for x in res:
             print(x)
+        

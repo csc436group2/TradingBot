@@ -21,8 +21,8 @@ def main() -> None:
     print("--- Printing users ---")
     myDBA.printTable("user")
 
-    myDBA.addBot("AdamsBOT", "Test", "Test condition 1, condition 2, condition 3", "buy 1, buy 2")
-    myDBA.addBot("AdamsBOT2", "Test2", "SELL ALL", "BUY NONE")
+    myDBA.addBot("AdamsBOT", "Test", "Test condition 1, condition 2, condition 3", "buy 1, buy 2", "10/24/22")
+    myDBA.addBot("AdamsBOT2", "Test2", "SELL ALL", "BUY NONE", "10/26/22")
 
     bot = myDBA.isBotPresent("AdamsBOT")
     print(bot)
