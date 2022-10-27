@@ -552,7 +552,7 @@ function StockDetail({
               <Box width={360} display="flex" flexDirection="column">
                 {detailFirst.map((_name, _index) => {
                   return (
-                    <div key={_index + '-detail'} style={{ flexGrow: 1 }}>
+                    <div key={_index + "-detail"} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailFirst[_index]["key"]}
@@ -573,7 +573,7 @@ function StockDetail({
               <Box width={360} display="flex" flexDirection="column">
                 {detailSecond.map((_name, _index) => {
                   return (
-                    <div key={_index + '-second'} style={{ flexGrow: 1 }}>
+                    <div key={_index + "-second"} style={{ flexGrow: 1 }}>
                       <Box display="flex" flexDirection="row">
                         <Typography variant="h5" p={1} flexGrow={1}>
                           {detailSecond[_index]["key"]}
@@ -798,7 +798,35 @@ function StockDetail({
           <DialogActions>
             <Button
               sx={{ color: colors.primary[100], fontWeight: 700, fontSize: 16 }}
-              onClick={handleDeleteRobot}
+              onClick={async () => {
+                const requestOptions = {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    botName: bots[index]["botName"],
+                    botId: bots[index]["botId"],
+                  }),
+                };
+                await fetch("http://127.0.0.1:5000/delete", requestOptions)
+                  .then(async (response) => {
+                    console.log(response);
+                    if (!response.ok) {
+                      return Promise.reject();
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error Code:", error);
+                  })
+                  .finally(() => {
+                    const toDelete = bots[index];
+                    bots = bots.filter(function (i) {
+                      return i !== toDelete;
+                    });
+                    window.localStorage.setItem("bots", JSON.stringify(bots));
+                    closeDeleteDialog();
+                    handleDialogClose();
+                  });
+              }}
             >
               Confirm
             </Button>

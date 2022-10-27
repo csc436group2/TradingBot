@@ -4,7 +4,6 @@ import { tokens } from "../theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import BotDetail from "../models/botDetail";
 import StockDetail from "../components/StockDetail";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
@@ -22,12 +21,11 @@ function Dashboard() {
   const [detailIndex, setDetailIndex] = useState(null);
   const [detailStockSym, setDetailStockSym] = useState(null);
 
-  const dataRef = new BotDetail();
-  const detailDesc = dataRef.detailsDescription;
-  const detailFirst = dataRef.detailsFirstHalf;
-  const detailSecond = dataRef.detailsSecondHalf;
-  const detailEPS = dataRef.detailsEPS;
-  const detailRatio = dataRef.detailsRatio;
+  const [detailDesc, setDetailDesc] = useState([{ key: "", val: "" }]);
+  const [detailFirst, setDetailFirst] = useState([{ key: "", val: "" }]);
+  const [detailSecond, setDetailSecond] = useState([{ key: "", val: "" }]);
+  const [detailEPS, setDetailEPS] = useState([{ key: "", val: "" }]);
+  const [detailRatio, setDetailRatio] = useState([{ key: "", val: "" }]);
 
   const options = {
     responsive: true,
@@ -73,9 +71,112 @@ function Dashboard() {
     nav("/createBot");
   };
 
+  const updateDetail = (data) => {
+    setDetailDesc([
+      { key: "Company", val: data["Company"] },
+      { key: "Sector", val: data["Sector"] },
+      { key: "Industry", val: data["Industry"] },
+      { key: "Country", val: data["Country"] },
+      { key: "Website", val: data["Website"] },
+      { key: "Index", val: data["Index"] },
+      { key: "Employees", val: data["Employees"].toLocaleString("en-US") },
+      { key: "Price", val: data["Price"] },
+      { key: "Volume", val: data["Volume"] },
+    ]);
+    setDetailFirst([
+      { key: "Insider Own", val: data["Insider Own"] },
+      { key: "Shs Outstand", val: data["Shs Outstand"] },
+      { key: "Perf Week", val: data["Perf Week"] },
+      { key: "Market Cap", val: data["Market Cap"] },
+      { key: "Insider Trans", val: data["Insider Trans"] },
+      { key: "Shs Float", val: data["Shs Float"] },
+      { key: "Perf Month", val: data["Perf Month"] },
+      { key: "Income", val: data["Income"] },
+      { key: "Inst Own", val: data["Inst Own"] },
+      { key: "Short Float", val: data["Short Float"] },
+      { key: "Perf Quarter", val: data["Perf Quarter"] },
+      { key: "Sales", val: data["Sales"] },
+      { key: "Inst Trans", val: data["Inst Trans"] },
+      { key: "Perf Half Y", val: data["Perf Half Y"] },
+      { key: "Target Price", val: data["Target Price"] },
+      { key: "Perf Year", val: data["Perf Year"] },
+      { key: "52W Range", val: data["52W Range"] },
+      { key: "Perf YTD", val: data["Perf YTD"] },
+      { key: "Dividend", val: data["Dividend"] },
+      { key: "52W High", val: data["52W High"] },
+      { key: "Beta", val: data["Beta"] },
+    ]);
+    setDetailSecond([
+      { key: "Gross Margin", val: data["Gross Margin"] },
+      { key: "52W Low", val: data["52W Low"] },
+      { key: "Sales Q/Q", val: data["Sales Q/Q"] },
+      { key: "Oper. Margin", val: data["Oper. Margin"] },
+      { key: "Volatility (Week)", val: data["Volatility (Week)"] },
+      { key: "Volatility (Month)", val: data["Volatility (Month)"] },
+      { key: "Profit Margin", val: data["Profit Margin"] },
+      { key: "Rel Volume", val: data["Rel Volume"] },
+      { key: "Prev Close", val: data["Prev Close"] },
+      { key: "Earnings", val: data["Earnings"] },
+      { key: "Payout", val: data["Payout"] },
+      { key: "Avg Volume", val: data["Avg Volume"] },
+      { key: "Recom", val: data["Recom"] },
+      { key: "SMA20", val: data["SMA20"] },
+      { key: "SMA50", val: data["SMA50"] },
+      { key: "SMA200", val: data["SMA200"] },
+      { key: "Change", val: data["Change"] },
+      { key: "Dividend %", val: data["Dividend %"] },
+      { key: "Sales past 5Y", val: data["Sales past 5Y"] },
+      { key: "Shortable", val: data["Shortable"] },
+      { key: "Optionable", val: data["Optionable"] },
+    ]);
+    setDetailEPS([
+      { key: "EPS this Y", val: data["EPS this Y"] },
+      { key: "EPS (ttm)", val: data["EPS (ttm)"] },
+      { key: "EPS Q/Q", val: data["EPS Q/Q"] },
+      { key: "EPS past 5Y", val: data["EPS past 5Y"] },
+      { key: "EPS next Q", val: data["EPS next Q"] },
+      { key: "EPS next Y", val: data["EPS next Y"] },
+      { key: "EPS next 5Y", val: data["EPS next 5Y"] },
+      { key: "EPS growth next Y", val: data["EPS growth next Y"] },
+      { key: "ROI", val: data["ROI"] },
+      { key: "ROA", val: data["ROA"] },
+      { key: "ROE", val: data["ROE"] },
+      { key: "RSI (14)", val: data["RSI (14)"] },
+    ]);
+    setDetailRatio([
+      { key: "ATR", val: data["ATR"] },
+      { key: "Book/sh", val: data["Book/sh"] },
+      { key: "Cash/sh", val: data["Cash/sh"] },
+      { key: "Current Ratio", val: data["Current Ratio"] },
+      { key: "Debt/Eq", val: data["Debt/Eq"] },
+      { key: "LT Debt/Eq", val: data["LTL Debt/Eq"] },
+      { key: "P/B", val: data["P/B"] },
+      { key: "P/C", val: data["P/C"] },
+      { key: "P/E", val: data["P/E"] },
+      { key: "Forward P/E", val: data["Forward P/E"] },
+      { key: "P/FCF", val: data["P/FCF"] },
+      { key: "P/S", val: data["P/S"] },
+      { key: "PEG", val: data["PEG"] },
+      { key: "Quick Ratio", val: data["Quick Ratio"] },
+      { key: "Short Ratio", val: data["Short Ratio"] },
+    ]);
+  };
+
   const handleDialogOpen = (index) => {
     setDetailIndex(index);
     setDetailStockSym(bots[index]["stockSym"]);
+    fetch(`http://127.0.0.1:5000/detail?stocksym=${bots[index]["stockSym"]}`)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        if (data !== "Not Found") {
+          updateDetail(data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
     setOpen(true);
   };
 

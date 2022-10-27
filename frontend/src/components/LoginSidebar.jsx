@@ -106,7 +106,8 @@ function LoginComponent() {
                     e[5],
                     false,
                     JSON.parse(e[4]),
-                    JSON.parse(e[3])
+                    JSON.parse(e[3]),
+                    e[0]
                   );
                   bots.push(botModel);
                   return 0;

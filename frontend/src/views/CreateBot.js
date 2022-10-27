@@ -745,21 +745,18 @@ function CreateBot() {
                             );
                             bots.push(botModel);
                           }
-                          //localStorage.setItem("bots", JSON.stringify([]));
-                          let test = JSON.parse(
-                            window.localStorage.getItem("bots")
-                          );
-                          console.log(JSON.parse(test[0][3]));
+                          localStorage.setItem("bots", JSON.stringify([bots]));
                         } else {
                           let test = JSON.parse(
                             window.localStorage.getItem("bots")
                           );
-                          console.log(JSON.parse(test[0][3]));
+                          console.log(JSON.parse(test));
                         }
                       })
                       .catch((error) => {
                         console.error("Error Code:", error);
-                      });
+                      })
+                      .finally(() => nav("/home"));
                   }
                 }}
               >

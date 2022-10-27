@@ -138,12 +138,13 @@ def pause():
 
 @app.route("/delete", methods=['POST'])
 def removeBot():
-    botName = request.json("botName")
+    botName = request.json["botName"]
+    botId = request.json["botId"]
     retVal = db.isBotPresent(botName)
     if (retVal == None):
         return make_response(jsonify("Wrong Info Provided"), 406)
     else:
-        # do some thing with DB
+        db.removeBot(botId)
         return make_response(jsonify("Success"), 200)
 
 
@@ -161,12 +162,20 @@ def listBots():
         return jsonify(retList)
         # parse retList to make list of bot names
         
-@app.route( "/detail", methods = ['POST'])
+@app.route( "/detail", methods = ['GET'])
 def finVizSymbolData():
-    symbol = 'MSFT' #example should get specific symbol 
-    retJson = finviz.get_stock(symbol)
-    print(retJson) #should be json info
-    return retJson
+    symbol = str(request.args["stocksym"]) #example should get specific symbol 
+    ret = None
+    try: 
+        retJson = finviz.get_stock(symbol)
+        ret = retJson
+    except: 
+        print("An error has occured")
+    # print(ret) #should be json info
+    if ret != None:
+        return jsonify(ret)
+    else:
+        return make_response(jsonify("Not Found"), 404)
 
 @app.route( "/portfolio", methods = ['POST'])
 def alpacaHistory():
