@@ -9,6 +9,7 @@ frontend/build
 backend/venv
 backend/__pycache__
 /.vscode
+Database/__pycache__
 
 # misc
 .DS_Store
