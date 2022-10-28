@@ -9,7 +9,7 @@ import {
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { useTheme } from "@mui/material";
 import { useContext, useState } from "react";
-import { ColorModeContext, tokens } from "../theme";
+import { ColorModeContext, tokens } from "../context/theme";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
@@ -36,6 +36,10 @@ const Topbar = () => {
     window.localStorage.removeItem("userName");
     window.localStorage.removeItem("apiKey");
     window.localStorage.removeItem("secretKey");
+    window.localStorage.removeItem("bots");
+    window.localStorage.removeItem("hasBot");
+    window.localStorage.removeItem("test");
+    window.localStorage.removeItem("currDetail");
     nav("/login");
   };
 

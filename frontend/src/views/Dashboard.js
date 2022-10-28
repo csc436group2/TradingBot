@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { Box, Divider, Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
+import { tokens } from "../context/theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import StockDetail from "../components/StockDetail";
+import React, { useState } from "react";
+import StockDetail from "./StockDetail";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
@@ -41,6 +41,7 @@ function Dashboard() {
     },
   };
 
+  // eslint-disable-next-line
   const [chartData, setChartData] = useState({
     labels: [
       "Jan",

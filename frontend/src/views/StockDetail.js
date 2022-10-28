@@ -17,8 +17,8 @@ import {
   Input,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { tokens } from "../theme";
-import Header from "./Header";
+import { tokens } from "../context/theme";
+import Header from "../components/Header";
 import { useState } from "react";
 import StartIcon from "@mui/icons-material/PlayCircleOutlineRounded";
 import PauseIcon from "@mui/icons-material/PauseCircleOutlineRounded";
@@ -147,33 +147,6 @@ function StockDetail({
     setBotsEdit(list);
   };
 
-  const deleteHttpRequest = () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secretKey: window.localStorage.getItem("secretKey"),
-        apiKey: window.localStorage.getItem("apiKey"),
-        botName: bots[index]["botName"],
-        stock_sym: bots[index]["stockSym"],
-      }),
-    };
-    fetch("http://localhost:5000/delete", requestOptions)
-      .then(async (response) => {
-        const isJson = response.headers
-          .get("content-type")
-          ?.includes("application/json");
-        const data = isJson && (await response.json());
-        if (!response.ok) {
-          const e = (data && data.message) || response.status;
-          return Promise.reject(e);
-        }
-      })
-      .catch((error) => {
-        console.error("Error Code:", error);
-      });
-  };
-
   const pauseHttpRequest = () => {
     const requestOptions = {
       method: "POST",
@@ -199,19 +172,6 @@ function StockDetail({
       .catch((error) => {
         console.error("Error Code:", error);
       });
-  };
-
-  const handleDeleteRobot = () => {
-    if (process.env.NODE_ENV !== "development") {
-      deleteHttpRequest();
-    }
-    const toDelete = bots[index];
-    bots = bots.filter(function (i) {
-      return i !== toDelete;
-    });
-    window.localStorage.setItem("bots", JSON.stringify(bots));
-    closeDeleteDialog();
-    handleDialogClose();
   };
 
   const handlePauseRobot = () => {

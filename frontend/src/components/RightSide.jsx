@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Typography, useTheme } from "@mui/material";
-import { tokens } from "../theme";
+import { tokens } from "../context/theme";
 
 const RightSide = () => {
   const theme = useTheme();

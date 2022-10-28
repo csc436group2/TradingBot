@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginView from "./views/Login";
 import "./assets/css/fonts.css";
-import { ColorModeContext, useMode } from "./theme";
+import { ColorModeContext, useMode } from "./context/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import Topbar from "./components/TopBar";
 import Dashboard from "./views/Dashboard";
