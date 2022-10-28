@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Alert,
   Box,
   Divider,
   FormControl,
@@ -28,6 +29,7 @@ import Bot from "../models/bot";
 
 function CreateBot() {
   const [stockSym, setStockSym] = useState("");
+  const [stockExists, setStockExists] = useState("");
   const [botName, setBotName] = useState("");
   const [stepCount, incrementStep] = useState({
     symbol: false,
@@ -142,68 +144,6 @@ function CreateBot() {
       const list = stepCount;
       list["botName"] = true;
       incrementStep(list);
-    }
-  };
-
-  const createBotHttpRequest = () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secretKey: window.localStorage.getItem("secretKey"),
-        apiKey: window.localStorage.getItem("apiKey"),
-        stockSym: stockSym,
-        botName: botName,
-        buy_condition: buyCnList,
-        sell_condition: sellCnList,
-        creation_date: dateFormat,
-        isRunning: true,
-      }),
-    };
-    fetch("http://localhost:5000/api/createbot", requestOptions)
-      .then(async (response) => {
-        const isJson = response.headers
-          .get("content-type")
-          ?.includes("application/json");
-        const data = isJson && (await response.json());
-        if (!response.ok) {
-          const e = (data && data.message) || response.status;
-          return Promise.reject(e);
-        }
-      })
-      .catch((error) => {
-        console.error("Error Code:", error);
-      });
-  };
-
-  const handleCreateBot = () => {
-    if (
-      stepCount.symbol &&
-      stepCount.buy & stepCount.sell &&
-      stepCount.botName
-    ) {
-      if (process.env.NODE_ENV !== "development") {
-        createBotHttpRequest();
-      }
-      const botModel = new Bot(
-        botName,
-        stockSym,
-        dateFormat,
-        false,
-        buyCnList,
-        sellCnList
-      );
-      let bots = window.localStorage.getItem("bots");
-      if (bots.length === 0) {
-        bots = JSON.parse(localStorage.getItem("bots"), "[]");
-        bots = [botModel];
-      } else {
-        bots = JSON.parse(window.localStorage.getItem("bots"), "[]");
-        bots.push(botModel);
-      }
-      localStorage.setItem("bots", JSON.stringify(bots));
-      console.log("bots: " + window.localStorage.getItem("bots"));
-      nav("/home");
     }
   };
 
@@ -694,69 +634,98 @@ function CreateBot() {
             <MyButton>
               <button
                 onClick={async () => {
+                  let tempExists = false;
                   if (
                     stepCount.symbol &&
                     stepCount.buy & stepCount.sell &&
                     stepCount.botName
                   ) {
-                    const requestOptions = {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        secretKey: window.localStorage.getItem("secretKey"),
-                        apiKey: window.localStorage.getItem("apiKey"),
-                        stockSym: stockSym,
-                        botName: botName,
-                        buy_condition: buyCnList,
-                        sell_condition: sellCnList,
-                        creation_date: dateFormat,
-                        isRunning: true,
-                      }),
-                    };
-                    await fetch("http://127.0.0.1:5000/create", requestOptions)
-                      .then(async (response) => {
-                        console.log(
-                          "RESPONSE: " +
-                            response.status +
-                            "\n" +
-                            "STATUS: " +
-                            response.statusText
-                        );
-                        if (response.status === 200) {
-                          const botModel = new Bot(
-                            botName,
-                            stockSym,
-                            dateFormat,
-                            false,
-                            buyCnList,
-                            sellCnList
-                          );
-                          let bots = window.localStorage.getItem("bots");
-                          if (bots.length === 0) {
-                            bots = JSON.parse(
-                              localStorage.getItem("bots"),
-                              "[]"
-                            );
-                            bots = [botModel];
-                          } else {
-                            bots = JSON.parse(
-                              window.localStorage.getItem("bots"),
-                              "[]"
-                            );
-                            bots.push(botModel);
-                          }
-                          localStorage.setItem("bots", JSON.stringify([bots]));
+                    await fetch(`http://127.0.0.1:5000/detail?stocksym=${stockSym}`)
+                      .then(function (response) {
+                        return response.json();
+                      })
+                      .then(function (data) {
+                        if (data === "Not Found") {
+                          tempExists = false;
+                          setStockExists("dne");
                         } else {
-                          let test = JSON.parse(
-                            window.localStorage.getItem("bots")
-                          );
-                          console.log(JSON.parse(test));
+                          tempExists = true;
                         }
                       })
                       .catch((error) => {
                         console.error("Error Code:", error);
-                      })
-                      .finally(() => nav("/home"));
+                      });
+                    if (tempExists) {
+                      const requestOptions = {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          secretKey: window.localStorage.getItem("secretKey"),
+                          apiKey: window.localStorage.getItem("apiKey"),
+                          stockSym: stockSym,
+                          botName: botName,
+                          buy_condition: buyCnList,
+                          sell_condition: sellCnList,
+                          creation_date: dateFormat,
+                          isRunning: true,
+                        }),
+                      };
+                      await fetch(
+                        "http://127.0.0.1:5000/create",
+                        requestOptions
+                      )
+                        .then(async (response) => {
+                          console.log(
+                            "RESPONSE: " +
+                              response.status +
+                              "\n" +
+                              "STATUS: " +
+                              response.statusText
+                          );
+                        })
+                        .catch((error) => {
+                          console.error("Error Code:", error);
+                        })
+                        .finally(() => {
+                          fetch(
+                            `http://127.0.0.1:5000/getbots?apiKey=${window.localStorage.getItem(
+                              "apiKey"
+                            )}&secretKey=${window.localStorage.getItem(
+                              "secretKey"
+                            )}`
+                          )
+                            .then(function (response) {
+                              console.log(response);
+                              return response.json();
+                            })
+                            .then(function (data) {
+                              let test = data;
+                              console.log(test);
+                              let bots = [];
+                              test.map((e) => {
+                                const botModel = new Bot(
+                                  e[1],
+                                  e[2],
+                                  e[5],
+                                  false,
+                                  JSON.parse(e[4]),
+                                  JSON.parse(e[3]),
+                                  e[0]
+                                );
+                                bots.push(botModel);
+                                return 0;
+                              });
+                              window.localStorage.setItem(
+                                "bots",
+                                JSON.stringify(bots)
+                              );
+                            })
+                            .catch((error) => {
+                              console.error("Error Code:", error);
+                            })
+                            .finally(() => nav("/home"));
+                        });
+                    }
                   }
                 }}
               >
@@ -767,6 +736,15 @@ function CreateBot() {
               <button onClick={handleCancel}>CANCEL</button>
             </CancelButton>
           </Box>
+          {stockExists === "dne" && (
+            <Alert
+              variant="outlined"
+              severity="error"
+              sx={{ fontSize: 14, borderRadius: 18 }}
+            >
+              Stock symbol not found. Please update to an existing stock symbol.
+            </Alert>
+          )}
         </FormWrapper>
       </Box>
     </Box>
