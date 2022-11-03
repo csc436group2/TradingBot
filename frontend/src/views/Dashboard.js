@@ -1,5 +1,12 @@
 import styled from "@emotion/styled";
-import { Box, Divider, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { tokens } from "../context/theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +14,7 @@ import React, { useState } from "react";
 import StockDetail from "./StockDetail";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
+import RefreshIcon from "@mui/icons-material/Refresh";
 Chart.register(...registerables);
 
 function Dashboard() {
@@ -27,6 +35,8 @@ function Dashboard() {
   const [detailEPS, setDetailEPS] = useState([{ key: "", val: "" }]);
   const [detailRatio, setDetailRatio] = useState([{ key: "", val: "" }]);
 
+  const [isLoading, setLoading] = useState(false);
+
   const options = {
     responsive: true,
     plugins: {
@@ -35,10 +45,87 @@ function Dashboard() {
         position: "top",
       },
       title: {
-        display: false,
-        text: "Portfolio History",
+        display: true,
+        text: "Equity Over Last 30 Days",
+        color: colors.primary[100],
+        font: {
+          size: 16,
+          weight: 900,
+        },
       },
     },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: "Equity",
+          color: colors.primary[100],
+          font: {
+            size: 16,
+            weight: 900,
+          },
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: colors.primary[100],
+          callback: function (value, index, ticks) {
+            return "$" + value.toLocaleString();
+          },
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Date",
+          color: colors.primary[100],
+          font: {
+            size: 16,
+            weight: 900,
+          },
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: colors.primary[100],
+        },
+      },
+    },
+  };
+
+  const updatePortfolio = (data) => {
+    let temp = data["equity"];
+    const labels = [];
+    const vals = [];
+    let val = 0;
+    for (const key in temp) {
+      let date = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+      }).format(key);
+      labels.push(date);
+      // Uncomment to set real value
+      //vals.push(temp[key]);
+      val += Math.floor(Math.random() * 1000) + 10;
+      vals.push(val);
+    }
+    const res = {
+      labels: labels,
+      datasets: [
+        {
+          label: "Equity",
+          data: vals,
+          backgroundColor: colors.blueAccent[500],
+          borderColor: colors.blueAccent[300],
+          borderWidth: 2,
+          pointRadius: 4,
+        },
+      ],
+    };
+    setChartData(res);
+    setLoading(false);
   };
 
   // eslint-disable-next-line
@@ -373,10 +460,36 @@ function Dashboard() {
             width={"100%"}
             p={2}
             borderRadius="20px 20px 0px 0px"
+            display="flex"
           >
-            <Typography variant="h3" sx={{ color: "white" }}>
+            <Typography variant="h3" sx={{ color: "white" }} flexGrow={1}>
               My Portfolio
             </Typography>
+            <IconButton
+              onClick={async () => {
+                const url = `http://127.0.0.1:5000/portfolio?key_id=${localStorage.getItem(
+                  "apiKey"
+                )}&secret_key=${localStorage.getItem("secretKey")}`;
+                setLoading(true);
+                await fetch(url)
+                  .then((response) => {
+                    return response.json();
+                  })
+                  .then((data) => {
+                    updatePortfolio(data);
+                  })
+                  .catch((e) => console.log(e));
+              }}
+            >
+              {isLoading ? (
+                <CircularProgress
+                  size={18}
+                  sx={{ color: "white" }}
+                />
+              ) : (
+                <RefreshIcon sx={{ color: "white" }} />
+              )}
+            </IconButton>
           </Box>
           <Box width="100%" p={3}>
             <Line data={chartData} options={options}></Line>

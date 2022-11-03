@@ -21,6 +21,7 @@ import finviz
 
 # Alpaca Imports
 import alpaca_trade_api as tradeapi
+from pandas import DataFrame
 
 
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
@@ -39,20 +40,6 @@ CORS(app, support_credentials=True)
 db = DBAdapter("127.0.0.1", "")
 db.connect()
 # db.initNew()  # may not need to make new
-
-
-# app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
-
-# User session management setup
-# https://flask-login.readthedocs.io/en/latest
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-
-
-# Flask-Login helper to retrieve a user from our db
-# @login_manager.user_loader
-# def load_user(user_id):
-    # DBAdapter.getUser(userId)
 
 @app.after_request
 def set_headers(response):
@@ -135,6 +122,15 @@ def pause():
             db.setInactive(user, botName)
         return make_response(jsonify("Success"), 200)
 
+@app.route("/botstatus", methods=['GET'])
+def botStatus():
+    botName = str(request.args["botName"]) #example should get specific symbol 
+    retVal = db.isBotPresent(botName)
+    if (retVal == None):
+        return make_response(jsonify("Wrong Info Provided"), 406)
+    else:
+        status = db.isActive(botName)
+        return jsonify(status)
 
 @app.route("/delete", methods=['POST'])
 def removeBot():
@@ -152,15 +148,12 @@ def removeBot():
 def listBots():
     incomingKey = request.args["apiKey"]
     incomingSecret = request.args["secretKey"]
-    print(incomingKey)
-    print(incomingSecret)
     retList = db.getUserBots(incomingKey, incomingSecret)
     print(retList)
     if len(retList) == 0:
         return jsonify([])
     else: 
         return jsonify(retList)
-        # parse retList to make list of bot names
         
 @app.route( "/detail", methods = ['GET'])
 def finVizSymbolData():
@@ -177,14 +170,14 @@ def finVizSymbolData():
     else:
         return make_response(jsonify("Not Found"), 404)
 
-@app.route( "/portfolio", methods = ['POST'])
+@app.route( "/portfolio", methods = ['GET'])
 def alpacaHistory():
-    skey = "" #need to get key from DB
-    apiKey = "" #need to get apiKey from DB
-    alpacaApiEndPoint = "https://api.alpaca.markets/"
-    api = tradeapi.REST(apiKey,skey)
-    api.get_portfolio_history()
-    return api
+    # key_id = request.args["apiKey"]
+    # secret_key = request.args["secretKey"]
+    api = tradeapi.REST(key_id=request.args["key_id"], secret_key=request.args["secret_key"], base_url="https://paper-api.alpaca.markets")
+    print(api.get_portfolio_history())
+    portfolio = DataFrame.to_json(api.get_portfolio_history().df)
+    return make_response(portfolio, 200)
 
 @app.route( "/api/dumpDB", methods = ['GET'])
 def dbDumb():
