@@ -30,17 +30,17 @@ def main() -> None:
     print("\n--- Printing bots ---")
     myDBA.printTable("bot")
 
-    myDBA.setBuyConditions("AdamsBOT", "TESTING TESTING")
+    myDBA.setBuyConditions(2, "TESTING TESTING")
     myDBA.printTable("bot")
-    myDBA.setSellConditions("AdamsBOT", "SELL SELL SELL")
+    myDBA.setSellConditions(2, "SELL SELL SELL")
     myDBA.printTable("bot")
     myDBA.setStockSymbol("AdamsBOT", "NEW NAME")
     myDBA.printTable("bot")
 
     print("ApiKey: " + str(myDBA.getAPIKey("Adam")))
     print("SecretKey: " + str(myDBA.getSecretKey("Adam")))
-    print("Buy: " + str(myDBA.getBuyConditions("AdamsBOT")))
-    print("Sell: " + str(myDBA.getSellConditions("AdamsBOT")))
+    print("Buy: " + str(myDBA.getBuyConditions(1)))
+    print("Sell: " + str(myDBA.getSellConditions(1)))
     print("StockSymbol: " + str(myDBA.getStockSymbol("AdamsBOT")))
 
     myDBA.addRelationship("Adam", "AdamsBOT")

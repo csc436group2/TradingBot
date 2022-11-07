@@ -188,22 +188,22 @@ class DBAdapter:
             return
         return res[0][3]
 
-    def getBuyConditions(self, botName):
-        res = self.isBotPresent(botName)
+    def getBuyConditions(self, botId):
+        res = self.containsBot(botId)
         if res is None:
             return
         return res[0][3]
     
-    def setBuyConditions(self, botName, newCond):
-        self.cursor.execute(f"UPDATE bot SET buyConditions = '{newCond}' WHERE name = '{botName}'")
+    def setBuyConditions(self, botId, newCond):
+        self.cursor.execute(f"UPDATE bot SET buyConditions = '{newCond}' WHERE id = '{botId}'")
         self.db.commit()
 
-    def setSellConditions(self, botName, newCond):
-        self.cursor.execute(f"UPDATE bot SET sellConditions = '{newCond}' WHERE name = '{botName}'")
+    def setSellConditions(self, botId, newCond):
+        self.cursor.execute(f"UPDATE bot SET sellConditions = '{newCond}' WHERE id = '{botId}'")
         self.db.commit()
     
-    def getSellConditions(self, botName):
-        res = self.isBotPresent(botName)
+    def getSellConditions(self, botId):
+        res = self.containsBot(botId)
         if res is None:
             return
         return res[0][4]
