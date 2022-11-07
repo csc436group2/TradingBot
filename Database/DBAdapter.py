@@ -232,7 +232,7 @@ class DBAdapter:
         if res is None:
             return
         res = res[0][0]
-        sql = f"""  SELECT bot.id, bot.name, bot.stockSymbol, bot.sellConditions, bot.buyConditions, userbot.isActive
+        sql = f"""  SELECT bot.id, bot.name, bot.stockSymbol, bot.sellConditions, bot.buyConditions, userbot.isActive, bot.added
                     FROM bot 
                     INNER JOIN userbot on bot.id = userbot.BotID
                     WHERE UserID = '{res}'
