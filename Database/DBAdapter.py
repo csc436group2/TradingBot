@@ -92,6 +92,16 @@ class DBAdapter:
         else:
             return res
 
+    def containsBot(self, botID):
+        self.cursor.execute(f"SELECT * FROM bot WHERE id={botID}")
+        res = self.cursor.fetchall()
+        self.db.commit()
+        if res == []:
+            return None
+        else:
+            return res
+
+
     def addBot(self, name, stockSymbol, sellConditions, buyConditions, dateAdded):
         """
         Adds a bot to the db
@@ -125,47 +135,42 @@ class DBAdapter:
         self.cursor.execute(sql, val)
         self.db.commit()
     
-    def setActive(self, userName, botName):
+    def setActive(self, apiKey, secretKey, botId):
         """
         Sets a bot active to show that it is running
         userName: The user
         botName: the bot
         """
-        self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
-        botID = self.cursor.fetchone()
-        self.db.commit()
-        self.cursor.execute(f"SELECT id FROM user WHERE name='{userName}'")
+        self.cursor.execute(f"SELECT id FROM user WHERE apiKey='{apiKey}' AND secretKey='{secretKey}'")
         userID = self.cursor.fetchone()
         self.db.commit()
-        if userID is None or botID is None:
+        if userID is None:
             return
-        self.cursor.execute(f"UPDATE userbot SET isActive = {True} WHERE userID='{userID[0]}' AND botID='{botID[0]}'")
+        self.cursor.execute(f"UPDATE userbot SET isActive = {True} WHERE userID='{userID[0]}' AND botID='{botId}'")
         self.db.commit()
 
-    def setInactive(self, userName, botName):
+    def setInactive(self, apiKey, secretKey, botId):
         """
         Sets a bot inactive to show that it is not running
         userName: The user
         botName: the bot
         """
-        self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
-        botID = self.cursor.fetchone()
-        self.db.commit()
-        self.cursor.execute(f"SELECT id FROM user WHERE name='{userName}'")
+        self.cursor.execute(f"SELECT id FROM user WHERE apiKey='{apiKey}' AND secretKey='{secretKey}'")
         userID = self.cursor.fetchone()
         self.db.commit()
-        if userID is None or botID is None:
+        if userID is None:
             return
-        self.cursor.execute(f"UPDATE userbot SET isActive = {False} WHERE userID='{userID[0]}' AND botID='{botID[0]}'")
-        self.db.commit() 
-
-    def isActive(self, botName):
-        if self.isBotPresent(botName) is None:
-            return
-        self.cursor.execute(f"SELECT id FROM bot WHERE name='{botName}'")
-        botID = self.cursor.fetchone()
+        self.cursor.execute(f"UPDATE userbot SET isActive = {False} WHERE userID='{userID[0]}' AND botID='{botId}'")
         self.db.commit()
-        self.cursor.execute(f"SELECT isActive FROM userBot WHERE botID='{botID[0]}'")
+
+    def isActive(self, apiKey, secretKey, botId):
+        
+        self.cursor.execute(f"SELECT id FROM user WHERE apiKey='{apiKey}' AND secretKey='{secretKey}'")
+        userID = self.cursor.fetchone()
+        self.db.commit()
+        if userID is None:
+            return
+        self.cursor.execute(f"SELECT isActive FROM userBot WHERE botID='{botId}'")
         isActive = self.cursor.fetchone()
         self.db.commit()
         return bool(isActive[0])
@@ -227,7 +232,7 @@ class DBAdapter:
         if res is None:
             return
         res = res[0][0]
-        sql = f"""  SELECT bot.id, bot.name, bot.stockSymbol, bot.sellConditions, bot.buyConditions
+        sql = f"""  SELECT bot.id, bot.name, bot.stockSymbol, bot.sellConditions, bot.buyConditions, userbot.isActive
                     FROM bot 
                     INNER JOIN userbot on bot.id = userbot.BotID
                     WHERE UserID = '{res}'

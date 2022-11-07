@@ -2,7 +2,7 @@ import DBAdapter as DBA
 
 def main() -> None:
     # add your password here
-    password = ""
+    password = "Wild-Cat-26"
     myDBA = DBA.DBAdapter("localhost", password)
     myDBA.connect()
     
@@ -46,20 +46,23 @@ def main() -> None:
     myDBA.addRelationship("Adam", "AdamsBOT")
     myDBA.addRelationship("Adam", "AdamsBOT2")
     print(myDBA.getUserBots("API KEY", "SECRET KEY"))
-    myDBA.setActive("Adam", "AdamsBOT")
-    res = myDBA.isActive("AdamsBOT")
+    myDBA.setActive("API KEY", "SECRET KEY", 1)
+    res = myDBA.isActive("API KEY", "SECRET KEY", 1)
     print(res)
-    myDBA.setInactive("Adam", "AdamsBOT")
-    res = myDBA.isActive("AdamsBOT")
+    myDBA.setInactive("API KEY", "SECRET KEY", 1)
+    res = myDBA.isActive("API KEY", "SECRET KEY", 1)
     print(res)
+
+    print(myDBA.containsBot(1))
+    print(myDBA.containsBot(7))
 
     print("\n--- Printing user-bots ---")
     myDBA.printTable("userbot")
     print("\n--- Printing user-bots ---")
-    myDBA.setActive("Adam", "AdamsBOT")
+    myDBA.setActive("API KEY", "SECRET KEY", 0)
     myDBA.printTable("userbot")
     print("\n--- Printing user-bots ---")
-    myDBA.setInactive("Adam", "AdamsBOT")
+    myDBA.setInactive("API KEY", "SECRET KEY", 1)
 
     myDBA.printTable("userbot")
     print("Adams bots: ")
