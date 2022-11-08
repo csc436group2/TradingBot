@@ -1,45 +1,26 @@
-# Python standard libraries
-from flask_login import (
-    LoginManager,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
-)
+# Standard / Flask Libraries
 from flask_cors import CORS
 from flask import Flask, jsonify, request, make_response
-import cmd
-from contextlib import redirect_stdout
 import json
-import os
 import sys
-# from typing_extensions import reveal_type
 
 # FinViz Imports
-from finviz.screener import Screener
 import finviz
 
 # Alpaca Imports
 import alpaca_trade_api as tradeapi
 from pandas import DataFrame
 
-
 # the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
 sys.path.append('../Database')
 from DBAdapter import *
-
-
-# Third-party libraries
-
 
 # Flask app setup
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
-# should connect to Azure/Cloud Server we set up for production
 db = DBAdapter("127.0.0.1", "")
 db.connect()
-# db.initNew()  # may not need to make new
 
 @app.after_request
 def set_headers(response):
@@ -80,7 +61,6 @@ def createBot():
     buyCond = request.json["buy_condition"]
     sellCond = request.json["sell_condition"]
     createDate = request.json["creation_date"]
-    isRunning = request.json["isRunning"]
     hasBot = db.isBotPresent(botName)
     if (hasBot == None):
         # create bot in bot table
@@ -90,6 +70,8 @@ def createBot():
         print(retDict)
         # add relationship between current user and bot created
         db.addRelationship(retDict[0][1], botName)
+        # set bot active
+        db.setActive(retDict[0][1], botName)
         return "Success", 200
     else:
         return "Wrong Info Provided", 406
@@ -106,22 +88,23 @@ def editBot():
         return make_response(jsonify("Success"), 200)
 
 
-@app.route("/pause", methods=['PUT'])
+@app.route("/pause", methods=['POST'])
 def pause():
-    botName = request.json("botName")
-    user = request.json("name")
+    incomingKey = str(request.json["apiKey"])
+    incomingSecret = str(request.json["secretKey"])
+    botId = str(request.json["botId"])
+    botName = str(request.json["botName"])
     retVal = db.isBotPresent(botName)
     if (retVal == None):
         return make_response(jsonify("Wrong Info Provided"), 406)
     else:
-        # do some thing with DB
-        curBotActivity = db.getBotStatus(botName)
-        if (curBotActivity == False):
-            db.setActive(user, botName)
+        active = db.isActive(incomingKey, incomingSecret, botId)
+        if (active):
+            db.setInactive(incomingKey, incomingSecret, botId)
         else:
-            db.setInactive(user, botName)
+            db.setActive(incomingKey, incomingSecret, botId)
         return make_response(jsonify("Success"), 200)
-
+        
 @app.route("/botstatus", methods=['GET'])
 def botStatus():
     botName = str(request.args["botName"]) #example should get specific symbol 
@@ -157,14 +140,13 @@ def listBots():
         
 @app.route( "/detail", methods = ['GET'])
 def finVizSymbolData():
-    symbol = str(request.args["stocksym"]) #example should get specific symbol 
+    symbol = str(request.args["stocksym"]) 
     ret = None
     try: 
         retJson = finviz.get_stock(symbol)
         ret = retJson
     except: 
         print("An error has occured")
-    # print(ret) #should be json info
     if ret != None:
         return jsonify(ret)
     else:
@@ -172,9 +154,10 @@ def finVizSymbolData():
 
 @app.route( "/portfolio", methods = ['GET'])
 def alpacaHistory():
-    # key_id = request.args["apiKey"]
-    # secret_key = request.args["secretKey"]
-    api = tradeapi.REST(key_id=request.args["key_id"], secret_key=request.args["secret_key"], base_url="https://paper-api.alpaca.markets")
+    apiKey = request.args["key_id"]
+    secretKey = request.args["secret_key"]
+    url = "https://paper-api.alpaca.markets"
+    api = tradeapi.REST(key_id=apiKey, secret_key=secretKey, base_url=url)
     print(api.get_portfolio_history())
     portfolio = DataFrame.to_json(api.get_portfolio_history().df)
     return make_response(portfolio, 200)
@@ -183,13 +166,3 @@ def alpacaHistory():
 def dbDumb():
     db.printTable("user")
     return "hello"
-    
-# @app.route("/api/toggleBotPause", methods = ['POST'])
-# def toggleBotPause():
-# update bot field in DB
-
-# if __name__ == '__main__':
-#     context = ('server.crt', 'server.key')#certificate and key files
-#     app.run(debug=True, ssl_context=context)
-
-# @app.route("/home", methods = ['POST'])
