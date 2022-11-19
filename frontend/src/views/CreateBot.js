@@ -30,13 +30,8 @@ import AddIcon from "@mui/icons-material/Add";
 function CreateBot() {
   const [stockSym, setStockSym] = useState("");
   const [stockExists, setStockExists] = useState("");
+  const [botNameVal, setBotNameVal] = useState(false);
   const [botName, setBotName] = useState("");
-  const [stepCount, incrementStep] = useState({
-    symbol: false,
-    buy: false,
-    sell: false,
-    botName: false,
-  });
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -75,11 +70,6 @@ function CreateBot() {
     const list = [...buyCnList];
     list[index]["property"] = conditions[value];
     setBuyCnList(list);
-    if (list.length >= 1) {
-      const countList = stepCount;
-      countList["buy"] = true;
-      incrementStep(countList);
-    }
   };
 
   const handleBuyFieldChange = (e, index, isLow) => {
@@ -123,34 +113,26 @@ function CreateBot() {
     const list = [...sellCnList];
     list[index]["property"] = conditions[value];
     setSellCnList(list);
-    if (list.length >= 1) {
-      const countList = stepCount;
-      countList["sell"] = true;
-      incrementStep(countList);
-    }
   };
 
   const handleStockSymChange = (e) => {
     setStockSym(e.target.value.toUpperCase());
-    if (stockSym.length > 1) {
-      const list = stepCount;
-      list["symbol"] = true;
-      incrementStep(list);
-    }
   };
 
   const handleBotNameChange = (e) => {
     setBotName(e.target.value);
-    if (botName.length >= 3) {
-      const list = stepCount;
-      list["botName"] = true;
-      incrementStep(list);
-    }
   };
 
   const handleCancel = () => {
     nav("/home");
   };
+
+  const validate = Boolean(
+    botName.length > 2 &&
+      stockSym.length === 4 &&
+      buyCnList.length > 0 &&
+      sellCnList.length > 0
+  );
 
   const MyButton = styled.div`
     button {
@@ -714,15 +696,12 @@ function CreateBot() {
                 <button
                   onClick={async () => {
                     let tempExists = false;
-                    if (
-                      stepCount.symbol &&
-                      stepCount.buy & stepCount.sell &&
-                      stepCount.botName
-                    ) {
+                    if (validate) {
                       await fetch(
                         `http://127.0.0.1:5000/detail?stocksym=${stockSym}`
                       )
                         .then(function (response) {
+                          console.log("Got stock sym");
                           return response.json();
                         })
                         .then(function (data) {
@@ -787,8 +766,8 @@ function CreateBot() {
                                   const botModel = new Bot(
                                     e[1],
                                     e[2],
-                                    e[5],
-                                    e[6] === 1 ? true : false,
+                                    e[6],
+                                    e[5] === 1 ? true : false,
                                     JSON.parse(e[4]),
                                     JSON.parse(e[3]),
                                     e[0]
@@ -807,6 +786,9 @@ function CreateBot() {
                               .finally(() => nav("/home"));
                           });
                       }
+                    } else {
+                      if (botName.length < 2) setBotNameVal(true);
+                      if (stockExists === "") setStockExists("dne");
                     }
                   }}
                 >
@@ -818,10 +800,24 @@ function CreateBot() {
               <Alert
                 variant="outlined"
                 severity="error"
-                sx={{ fontSize: 14, borderRadius: 18 }}
+                sx={{ fontSize: 14, borderRadius: 18, alignSelf: "center" }}
               >
                 Stock symbol not found. Please update to an existing stock
                 symbol.
+              </Alert>
+            )}
+            {botNameVal && (
+              <Alert
+                variant="outlined"
+                severity="error"
+                sx={{
+                  fontSize: 14,
+                  borderRadius: 18,
+                  marginTop: 2,
+                  alignSelf: "center",
+                }}
+              >
+                Bot name must be 2 or more characters.
               </Alert>
             )}
           </Box>

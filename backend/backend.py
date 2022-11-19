@@ -70,8 +70,6 @@ def createBot():
         print(retDict)
         # add relationship between current user and bot created
         db.addRelationship(retDict[0][1], botName)
-        # set bot active
-        db.setActive(retDict[0][1], botName)
         return "Success", 200
     else:
         return "Wrong Info Provided", 406
