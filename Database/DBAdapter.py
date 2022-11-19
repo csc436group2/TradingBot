@@ -208,6 +208,8 @@ class DBAdapter:
             return
         return res[0][4]
     
+    # Just noticed this, needs to be changed. Don't know if it was from roll back or not but will
+    # change soon
     def getStockSymbol(self, botName):
         res = self.isBotPresent(botName)
         if res is None:
