@@ -788,7 +788,7 @@ function CreateBot() {
                                     e[1],
                                     e[2],
                                     e[5],
-                                    false,
+                                    e[6] === 1 ? true : false,
                                     JSON.parse(e[4]),
                                     JSON.parse(e[3]),
                                     e[0]

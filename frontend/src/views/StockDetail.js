@@ -147,52 +147,41 @@ function StockDetail({
     setBotsEdit(list);
   };
 
-  const pauseHttpRequest = () => {
+  const handlePauseRobot = () => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        secretKey: window.localStorage.getItem("secretKey"),
-        apiKey: window.localStorage.getItem("apiKey"),
+        apiKey: localStorage.getItem("apiKey"),
+        secretKey: localStorage.getItem("secretKey"),
         botName: bots[index]["botName"],
-        stock_sym: bots[index]["stockSym"],
+        botId: bots[index]["botId"]
       }),
     };
-    fetch("http://localhost:5000/pause", requestOptions)
-      .then(async (response) => {
-        const isJson = response.headers
-          .get("content-type")
-          ?.includes("application/json");
-        const data = isJson && (await response.json());
-        if (!response.ok) {
-          const e = (data && data.message) || response.status;
-          return Promise.reject(e);
+    fetch("http://127.0.0.1:5000/pause", requestOptions)
+      .then(function (response) {
+        console.log(response);
+        if (response.ok) {
+          const toUpdate = bots[index];
+          toUpdate["isRunning"] = !toUpdate["isRunning"];
+          const updated = [];
+          bots.forEach(function (i) {
+            if (i["botName"] !== toUpdate["botName"]) {
+              updated.push(i);
+            } else {
+              updated.push(toUpdate);
+            }
+          });
+          window.localStorage.setItem("bots", JSON.stringify(updated));
+          updateRunning();
+          if (!curRunning) {
+            handleSnackBarOpen();
+          }
         }
       })
       .catch((error) => {
         console.error("Error Code:", error);
       });
-  };
-
-  const handlePauseRobot = () => {
-    if (process.env.NODE_ENV !== "development") {
-      pauseHttpRequest();
-    }
-    const toUpdate = bots[index];
-    toUpdate["isRunning"] = true;
-    const updated = [];
-    bots.forEach(function (i) {
-      if (i["botName"] !== toUpdate["botName"]) {
-        updated.push(i);
-      } else {
-        updated.push(toUpdate);
-      }
-    });
-    window.localStorage.setItem("bots", JSON.stringify(updated));
-    updateRunning();
-    if (!curRunning) {
-      handleSnackBarOpen();
-    }
   };
 
   const DeleteButton = styled.div`

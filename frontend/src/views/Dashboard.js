@@ -10,11 +10,12 @@ import {
 import { tokens } from "../context/theme";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StockDetail from "./StockDetail";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import Bot from "../models/bot";
 Chart.register(...registerables);
 
 function Dashboard() {
@@ -94,6 +95,40 @@ function Dashboard() {
       },
     },
   };
+
+  useEffect(() => {
+    fetch(
+      `http://127.0.0.1:5000/getbots?apiKey=${localStorage.getItem(
+        "apiKey"
+      )}&secretKey=${localStorage.getItem("secretKey")}`
+    )
+      .then(function (response) {
+        console.log(response);
+        return response.json();
+      })
+      .then(function (data) {
+        let test = data;
+        console.log(test);
+        let bots = [];
+        test.map((e) => {
+          const botModel = new Bot(
+            e[1],
+            e[2],
+            e[6],
+            e[5] === 1 ? true : false,
+            JSON.parse(e[4]),
+            JSON.parse(e[3]),
+            e[0]
+          );
+          bots.push(botModel);
+          return 0;
+        });
+        window.localStorage.setItem("bots", JSON.stringify(bots));
+      })
+      .catch((error) => {
+        console.error("Error Code:", error);
+      });
+  }, []);
 
   const updatePortfolio = (data) => {
     let temp = data["equity"];
@@ -482,10 +517,7 @@ function Dashboard() {
               }}
             >
               {isLoading ? (
-                <CircularProgress
-                  size={18}
-                  sx={{ color: "white" }}
-                />
+                <CircularProgress size={18} sx={{ color: "white" }} />
               ) : (
                 <RefreshIcon sx={{ color: "white" }} />
               )}
