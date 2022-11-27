@@ -1,4 +1,4 @@
-To run:
+To run:<br>
   Python3 BotManager.py
 Dependancies:
 mysql.connector
